@@ -109,7 +109,11 @@
       { "text": "…ぐ…っ…っ…", "tone": "intense" },
       { "text": "…ひ…っ…っ…", "tone": "soft" },
       { "text": "ひ,", "tone": "soft" },
-      { "text": "ひっ", "tone": "soft" }
+      { "text": "ひっ", "tone": "soft" },
+      { "text": "おゔぇぇ…", "tone": "intense" },
+      { "text": "おゔぇ…", "tone": "intense" },
+      { "text": "ゔぇ…", "tone": "intense" },
+      { "text": "ぐえ…", "tone": "harsh" }
     ],
     "3": [
       { "text": "…っ…っ…っ…", "tone": "harsh" },
@@ -131,7 +135,12 @@
       { "text": "…ふ…っ…っ", "tone": "soft" },
       { "text": "…ぐ…っ…っ…っ", "tone": "intense" },
       { "text": "…ゔ…っ…っ", "tone": "harsh" },
-      { "text": "…ぐ…ゔ…っ", "tone": "intense" }
+      { "text": "…ぐ…ゔ…っ", "tone": "intense" },
+      { "text": "おゔぇぇぇ…", "tone": "intense" },
+      { "text": "おゔぇっ…", "tone": "intense" },
+      { "text": "ゔぇっ…", "tone": "intense" },
+      { "text": "ぐえっ…", "tone": "harsh" },
+      { "text": "げほ…", "tone": "harsh" }
     ]
   },
   "cut": {
@@ -182,7 +191,11 @@
       { "text": "ふ…っ…", "tone": "soft" },
       { "text": "ひ,", "tone": "soft" },
       { "text": "ひっ", "tone": "soft" },
-      { "text": "ふっ", "tone": "soft" }
+      { "text": "ふっ", "tone": "soft" },
+      { "text": "おゔぇぇ…", "tone": "intense" },
+      { "text": "おゔぇっ…", "tone": "intense" },
+      { "text": "ゔぇっ…", "tone": "intense" },
+      { "text": "ぐえっ…", "tone": "harsh" }
     ],
     "3": [
       { "text": "がはっ…", "tone": "harsh" },
@@ -204,7 +217,12 @@
       { "text": "はぁ…っ", "tone": "soft" },
       { "text": "がはっ…っ…っ", "tone": "intense" },
       { "text": "げほっ…っ…", "tone": "harsh" },
-      { "text": "がはっ…っ…っ…", "tone": "intense" }
+      { "text": "がはっ…っ…っ…", "tone": "intense" },
+      { "text": "おゔぇぇっ", "tone": "intense" },
+      { "text": "おゔぇっ", "tone": "intense" },
+      { "text": "ゔぇぇっ", "tone": "intense" },
+      { "text": "ぐえっ", "tone": "harsh" },
+      { "text": "げほっ", "tone": "harsh" }
     ]
   },
   "after": {

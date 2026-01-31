@@ -361,17 +361,64 @@ export function generateLine({
   const cut = [lex.cut['1'], lex.cut['2'], lex.cut['3']];
   const after = [lex.after['1'], lex.after['2'], lex.after['3']];
 
+  function filterSetBy(setGroup, predicate) {
+    return setGroup.map((bucket) => bucket.filter(predicate));
+  }
+
+  const isStandaloneVe = (item) => item.text.startsWith('ゔぇ');
+  const isBurstWord = (item) => /おゔぇ|おえ|ゔぇ|うぇ|ぐえ/.test(item.text);
+  const isBurstTone = () => currentTone === 'shaken' || currentTone === 'panic' || currentTone === 'rage';
+  const burstEnabled = intensity >= 1 && isBurstTone();
+
+  const contFiltered = filterSetBy(cont, (item) => {
+    if (!burstEnabled && isBurstWord(item)) return false;
+    return !isStandaloneVe(item);
+  });
+  const cutFiltered = filterSetBy(cut, (item) => {
+    if (!burstEnabled && isBurstWord(item)) return false;
+    if (intensity < 2 && isStandaloneVe(item)) return false;
+    return true;
+  });
+
   const parts = [];
   const flowMode = flow || 'none';
   const strictRepeat = length === 'xlong' || flowMode === 'sudden';
   const preVal = pickTextFromIntensity(pre);
-  const contVal = pickTextFromIntensityAvoid(cont, preVal, strictRepeat);
-  const cutVal = pickCutFromIntensityAvoid(cut, contVal, strictRepeat);
+  let burstCount = 0;
+  const incBurstIfNeeded = (text) => {
+    if (!text) return;
+    if (/おゔぇ|おえ|ゔぇ|うぇ|ぐえ/.test(text)) burstCount += 1;
+  };
+
+  const contVal = pickTextFromIntensityAvoid(contFiltered, preVal, strictRepeat);
+  incBurstIfNeeded(contVal);
+  let cutVal = pickCutFromIntensityAvoid(cutFiltered, contVal, strictRepeat);
+  incBurstIfNeeded(cutVal);
   const afterVal = pickAfterFromIntensityAvoid(after, cutVal, strictRepeat);
-  const extraCont = pickTextFromIntensityAvoid(cont, contVal, strictRepeat);
-  const extraCont2 = pickTextFromIntensityAvoid(cont, extraCont, strictRepeat);
-  const extraCut = pickTextFromIntensityAvoid(cut, cutVal, strictRepeat);
+  let extraCont = pickTextFromIntensityAvoid(contFiltered, contVal, strictRepeat);
+  incBurstIfNeeded(extraCont);
+  let extraCont2 = pickTextFromIntensityAvoid(contFiltered, extraCont, strictRepeat);
+  incBurstIfNeeded(extraCont2);
+  let extraCut = pickTextFromIntensityAvoid(cutFiltered, cutVal, strictRepeat);
+  incBurstIfNeeded(extraCut);
   const extraAfter = pickAfterFromIntensityAvoid(after, afterVal, strictRepeat);
+
+  if (burstCount > 1) {
+    const contNoBurst = filterSetBy(contFiltered, (item) => !isBurstWord(item));
+    const cutNoBurst = filterSetBy(cutFiltered, (item) => !isBurstWord(item));
+    if (isBurstWord(extraCont) && contNoBurst[intensity]?.length) {
+      extraCont = pickTextFromIntensityAvoid(contNoBurst, contVal, strictRepeat);
+    }
+    if (isBurstWord(extraCont2) && contNoBurst[intensity]?.length) {
+      extraCont2 = pickTextFromIntensityAvoid(contNoBurst, extraCont, strictRepeat);
+    }
+    if (isBurstWord(extraCut) && cutNoBurst[intensity]?.length) {
+      extraCut = pickTextFromIntensityAvoid(cutNoBurst, cutVal, strictRepeat);
+    }
+    if (isBurstWord(cutVal) && cutNoBurst[intensity]?.length) {
+      cutVal = pickCutFromIntensityAvoid(cutNoBurst, contVal, strictRepeat);
+    }
+  }
 
   function dropLeadingEllipsis(text) {
     return text.replace(/^…+/, '');
