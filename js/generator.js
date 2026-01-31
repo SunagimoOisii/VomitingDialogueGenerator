@@ -270,16 +270,28 @@ export function generateLine({
   const afterVal = pickTextFromIntensity(after);
 
   if (length === 'short') {
-    parts.push(preVal, contVal);
+    if (rng() < 0.5) {
+      parts.push(preVal, contVal);
+    } else {
+      parts.push(contVal, cutVal);
+    }
   } else if (length === 'medium') {
-    parts.push(preVal, contVal, cutVal);
+    if (rng() < 0.5) {
+      parts.push(preVal, contVal, cutVal);
+    } else {
+      parts.push(preVal, contVal, afterVal);
+    }
   } else {
     const extraCont = pickTextFromIntensity(cont);
-    // 長はときどき継続音を追加して尺と勢いを確保する。
-    if (rng() < 0.4) {
+    const extraAfter = pickTextFromIntensity(after);
+    // 長は構成パターンを複数用意して揺らぎを作る。
+    const roll = rng();
+    if (roll < 0.34) {
+      parts.push(preVal, contVal, cutVal, afterVal);
+    } else if (roll < 0.68) {
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
     } else {
-      parts.push(preVal, contVal, cutVal, afterVal);
+      parts.push(preVal, contVal, cutVal, afterVal, extraAfter);
     }
   }
 
