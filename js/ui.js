@@ -30,86 +30,7 @@ const levelInput = document.querySelector('#level-input');
 const phraseInput = document.querySelector('#phrase-input');
 const seedInput = document.querySelector('#seed-input');
 const breakExampleItems = document.querySelectorAll('.break-examples-list li');
-const analyticsBtn = document.querySelector('#analytics-btn');
-const analyticsModal = document.querySelector('.analytics-modal');
-const analyticsDay = document.querySelector('#analytics-day');
-const analyticsEmpty = document.querySelector('#analytics-empty');
-const analyticsBars = document.querySelector('#analytics-bars');
 let lexicon = null;
-
-function sendAnalytics(eventName) {
-  if (!ANALYTICS_ENDPOINT) return;
-  fetch(ANALYTICS_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event: eventName, ts: Date.now() }),
-    keepalive: true,
-  }).catch(() => {});
-}
-
-const eventLabels = {
-  generate_click: '生成',
-  copy_click: 'コピー',
-  restore_click: '復元',
-  history_add: '履歴追加',
-  history_clear: '履歴全削除',
-  tone_change: 'トーン切替',
-};
-
-const eventOrder = [
-  'generate_click',
-  'copy_click',
-  'restore_click',
-  'history_add',
-  'history_clear',
-  'tone_change',
-];
-
-async function loadAnalyticsStats() {
-  if (!ANALYTICS_STATS_URL) {
-    if (analyticsEmpty) analyticsEmpty.textContent = 'STATS_URL を設定してください';
-    return;
-  }
-  try {
-    const res = await fetch(ANALYTICS_STATS_URL, { cache: 'no-store' });
-    if (!res.ok) throw new Error('fetch failed');
-    const data = await res.json();
-    if (analyticsDay) analyticsDay.textContent = data.day || '--';
-    const stats = data.stats || {};
-    const entries = eventOrder
-      .filter((key) => key in stats)
-      .map((key) => [key, stats[key]]);
-    if (!analyticsBars || !analyticsEmpty) return;
-    analyticsBars.innerHTML = '';
-    if (!entries.length) {
-      analyticsEmpty.style.display = 'block';
-      return;
-    }
-    analyticsEmpty.style.display = 'none';
-    const max = Math.max(...entries.map(([, v]) => v), 1);
-    for (const [key, value] of entries) {
-      const row = document.createElement('div');
-      row.className = 'chart-row';
-      const label = document.createElement('div');
-      label.className = 'chart-label';
-      label.textContent = eventLabels[key] || key;
-      const bar = document.createElement('div');
-      bar.className = 'chart-bar';
-      const fill = document.createElement('span');
-      fill.style.width = `${Math.round((value / max) * 100)}%`;
-      bar.append(fill);
-      const val = document.createElement('div');
-      val.className = 'chart-value';
-      val.textContent = String(value);
-      row.append(label, bar, val);
-      analyticsBars.append(row);
-    }
-  } catch {
-    if (analyticsEmpty) analyticsEmpty.textContent = '取得に失敗しました';
-  }
-}
 
 function getActiveSegValue(name) {
   const seg = document.querySelector(`.seg[data-seg="${name}"]`);
@@ -162,7 +83,6 @@ function renderHistory(list = loadHistory()) {
     restore.addEventListener('click', () => {
       applyParams(item.params);
       generateAndRender();
-      sendAnalytics('restore_click');
     });
     const del = document.createElement('button');
     del.className = 'mini';
@@ -296,7 +216,6 @@ export function initUI() {
 
   generateBtn?.addEventListener('click', () => {
     generateAndRender();
-    sendAnalytics('generate_click');
   });
 
   historyAddBtn?.addEventListener('click', () => {
@@ -314,13 +233,11 @@ export function initUI() {
     };
     const next = addHistoryItem({ text, params });
     renderHistory(next);
-    sendAnalytics('history_add');
   });
 
   historyClearBtn?.addEventListener('click', () => {
     const next = clearHistory();
     renderHistory(next);
-    sendAnalytics('history_clear');
   });
 
   copyBtn?.addEventListener('click', async () => {
@@ -328,7 +245,6 @@ export function initUI() {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      sendAnalytics('copy_click');
     } catch {
       // ignore clipboard errors
     }
@@ -345,9 +261,6 @@ export function initUI() {
       if (btn.closest('.seg')?.getAttribute('data-seg') === 'phrase-break') {
         updateBreakExamples();
       }
-      if (btn.closest('.seg')?.getAttribute('data-seg') === 'tone') {
-        sendAnalytics('tone_change');
-      }
     });
   }
 
@@ -357,16 +270,5 @@ export function initUI() {
 
   renderHistory();
   updateBreakExamples();
-
-  analyticsBtn?.addEventListener('click', () => {
-    analyticsModal?.classList.add('is-visible');
-    loadAnalyticsStats();
-  });
-
-  analyticsModal?.addEventListener('click', (event) => {
-    if (event.target === analyticsModal) {
-      analyticsModal.classList.remove('is-visible');
-    }
-  });
 
 }
