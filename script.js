@@ -154,10 +154,30 @@ function getIntensity(level) {
   return 2;
 }
 
-function breakPhrase(text) {
+function breakPhrase(text, intensity, rng) {
   if (!text) return '';
-  const cut = Math.max(1, Math.floor(text.length * 0.7));
-  return `${text.slice(0, cut)}…`;
+  const cleaned = text.replace(/[A-Za-z0-9]/g, '').replace(/ー/g, '').trim();
+  if (!cleaned) return '';
+  const remainRate = intensity === 0 ? 0.8 : intensity === 1 ? 0.6 : 0.4;
+  const baseLen = Math.max(1, Math.floor(cleaned.length * remainRate));
+  const head = cleaned.slice(0, baseLen);
+  const tailStart = Math.max(1, Math.floor(cleaned.length * 0.5));
+  const tail = cleaned.slice(tailStart);
+  const pickRule = Math.floor(rng() * 5);
+
+  switch (pickRule) {
+    case 0:
+      return `${head}…`;
+    case 1:
+      return `${head}っ…`;
+    case 2:
+      return `${head}…っ`;
+    case 3:
+      return `${head.slice(0, Math.max(1, Math.floor(head.length * 0.6)))}…${head}…`;
+    case 4:
+    default:
+      return `${head}…${tail.slice(0, Math.max(1, Math.floor(tail.length * 0.5)))}…`;
+  }
 }
 
 function generateLine() {
@@ -205,7 +225,7 @@ function generateLine() {
   }
 
   if (phrase) {
-    const phraseVal = phraseMode === 'broken' ? breakPhrase(phrase) : phrase;
+    const phraseVal = phraseMode === 'broken' ? breakPhrase(phrase, intensity, rng) : phrase;
     if (parts.length >= 2) {
       parts.splice(1, 0, phraseVal);
     } else {
