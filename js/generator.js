@@ -135,8 +135,8 @@ export function generateLine({
 
   const toneWeights = {
     harsh: { harsh: 5, neutral: 2, soft: 1 },
-    neutral: { harsh: 1, neutral: 5, soft: 1 },
-    soft: { harsh: 1, neutral: 2, soft: 5 },
+    neutral: { harsh: 1, neutral: 8, soft: 1 },
+    soft: { harsh: 0.5, neutral: 2, soft: 6 },
     intense: { harsh: 6, neutral: 1, soft: 1 },
   };
   const currentTone = tone && toneWeights[tone] ? tone : 'harsh';
@@ -304,15 +304,23 @@ export function generateLine({
         { weight: weights[1], apply: () => parts.push(contVal, cutVal) },
       ]);
     } else if (length === 'medium') {
-      const weights = cfg.midBias === 'cut' ? [65, 35] : cfg.midBias === 'after' ? [35, 65] : [50, 50];
-      pickPattern([
-        { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
-        { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
-      ]);
+      if (currentTone === 'intense') {
+        pickPattern([
+          { weight: 30, apply: () => parts.push(preVal, contVal, cutVal) },
+          { weight: 30, apply: () => parts.push(preVal, contVal, afterVal) },
+          { weight: 40, apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
+        ]);
+      } else {
+        const weights = cfg.midBias === 'cut' ? [65, 35] : cfg.midBias === 'after' ? [35, 65] : [50, 50];
+        pickPattern([
+          { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
+          { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
+        ]);
+      }
     } else if (length === 'long') {
       // 長は構成パターンを複数用意して揺らぎを作る。
       const intenseBoost = currentTone === 'intense';
-      let weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
+      let weights = intenseBoost ? [35, 55, 10] : [40, 40, 20];
       if (cfg.longBias === 'short') weights = [55, 30, 15];
       if (cfg.longBias === 'long') weights = [30, 55, 15];
       pickPattern([
@@ -322,7 +330,7 @@ export function generateLine({
       ]);
     } else {
       const intenseBoost = currentTone === 'intense';
-      let weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
+      let weights = intenseBoost ? [35, 55, 10] : [40, 40, 20];
       if (cfg.longBias === 'short') weights = [55, 30, 15];
       if (cfg.longBias === 'long') weights = [30, 55, 15];
       pickPattern([
