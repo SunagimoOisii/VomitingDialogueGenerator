@@ -23,6 +23,15 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.page {
+  user-select: none;
+}
+
+.output-box,
+#output {
+  user-select: text;
+}
+
 .bg-grid {
   position: fixed;
   inset: 0;
@@ -264,6 +273,12 @@ input[type="range"] {
   padding: 0;
   display: grid;
   gap: 10px;
+}
+
+.history-empty {
+  font-size: 14px;
+  color: var(--muted);
+  padding: 6px 4px 12px;
 }
 
 .history-list li {

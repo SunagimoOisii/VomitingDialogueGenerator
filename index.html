@@ -14,14 +14,7 @@
   <main class="page">
     <header class="hero">
       <div class="hero-left">
-        <p class="eyebrow">VOMIT LINE GENERATOR</p>
-        <h1>嘔吐セリフ<br />ジェネレータ</h1>
-        <p class="subtitle">抽象・無機質なUIで、入力と出力の操作性を最優先に。</p>
-        <div class="hero-meta">
-          <span class="meta-pill">保存: ローカル</span>
-          <span class="meta-pill">履歴: 50件</span>
-          <span class="meta-pill">警告: 同意必須</span>
-        </div>
+        <h1>嘔吐セリフジェネレータ</h1>
       </div>
     </header>
 
@@ -30,18 +23,17 @@
         <section class="panel output">
           <div class="panel-head">
             <h2>出力</h2>
-            <div class="meta">text only</div>
           </div>
           <div class="primary-actions">
             <button id="generate-btn" class="btn-primary">今すぐ生成</button>
-            <button class="btn-ghost">履歴を全削除</button>
+            <button id="history-clear-btn" class="btn-ghost">履歴を全削除</button>
           </div>
           <div class="output-box">
             <p id="output">うっ… ん…っ… かはっ… はぁ…</p>
           </div>
           <div class="panel-actions">
-            <button class="btn-ghost">コピー</button>
-            <button class="btn-ghost">履歴に追加</button>
+            <button id="copy-btn" class="btn-ghost">コピー</button>
+            <button id="history-add-btn" class="btn-ghost">履歴に追加</button>
           </div>
         </section>
 
@@ -50,23 +42,14 @@
             <h2>履歴</h2>
             <div class="meta">最大50件</div>
           </div>
-          <ul class="history-list">
-            <li>
-              <div class="history-text">うっ… ん…っ… かはっ…</div>
-              <button class="mini">削除</button>
-            </li>
-            <li>
-              <div class="history-text">…っ…こっ… かはっ… はぁ…</div>
-              <button class="mini">削除</button>
-            </li>
-          </ul>
+          <div id="history-empty" class="history-empty">履歴はまだありません</div>
+          <ul id="history-list" class="history-list"></ul>
         </section>
       </div>
 
       <section class="panel">
         <div class="panel-head">
           <h2>操作</h2>
-          <div class="meta">入力パラメータ</div>
         </div>
 
         <div class="controls">
