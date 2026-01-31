@@ -178,56 +178,61 @@ export function generateLine({
 
   const flowMode = flow || 'none';
 
+  function pickPattern(patterns) {
+    const total = patterns.reduce((sum, item) => sum + item.weight, 0);
+    let r = rng() * total;
+    for (const item of patterns) {
+      r -= item.weight;
+      if (r <= 0) {
+        item.apply();
+        return;
+      }
+    }
+    patterns[patterns.length - 1].apply();
+  }
+
   function buildDefault() {
     if (length === 'short') {
-      if (rng() < 0.5) {
-        parts.push(preVal, contVal);
-      } else {
-        parts.push(contVal, cutVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(preVal, contVal) },
+        { weight: 1, apply: () => parts.push(contVal, cutVal) },
+      ]);
     } else if (length === 'medium') {
-      if (rng() < 0.5) {
-        parts.push(preVal, contVal, cutVal);
-      } else {
-        parts.push(preVal, contVal, afterVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(preVal, contVal, cutVal) },
+        { weight: 1, apply: () => parts.push(preVal, contVal, afterVal) },
+      ]);
     } else if (length === 'long') {
       // 長は構成パターンを複数用意して揺らぎを作る。
-      const roll = rng();
       const intenseBoost = currentTone === 'intense';
-      if (roll < 0.34) {
-        parts.push(preVal, contVal, cutVal, afterVal);
-      } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
-        parts.push(preVal, contVal, extraCont, cutVal, afterVal);
-      } else {
-        parts.push(preVal, contVal, cutVal, afterVal, extraAfter);
-      }
+      const weights = intenseBoost ? [34, 51, 15] : [34, 34, 32];
+      pickPattern([
+        { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
+        { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
+        { weight: weights[2], apply: () => parts.push(preVal, contVal, cutVal, afterVal, extraAfter) },
+      ]);
     } else {
-      const roll = rng();
       const intenseBoost = currentTone === 'intense';
-      if (roll < 0.34) {
-        parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter);
-      } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
-        parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal);
-      } else {
-        parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
-      }
+      const weights = intenseBoost ? [34, 51, 15] : [34, 34, 32];
+      pickPattern([
+        { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
+        { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },
+        { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter) },
+      ]);
     }
   }
 
   function buildSudden() {
     if (length === 'short') {
-      if (rng() < 0.5) {
-        parts.push(contVal, cutVal);
-      } else {
-        parts.push(contVal, afterVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(contVal, cutVal) },
+        { weight: 1, apply: () => parts.push(contVal, afterVal) },
+      ]);
     } else if (length === 'medium') {
-      if (rng() < 0.5) {
-        parts.push(contVal, cutVal, afterVal);
-      } else {
-        parts.push(preVal, contVal, cutVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(contVal, cutVal, afterVal) },
+        { weight: 1, apply: () => parts.push(preVal, contVal, cutVal) },
+      ]);
     } else if (length === 'long') {
       parts.push(contVal, extraCont, cutVal, afterVal);
     } else {
@@ -237,17 +242,15 @@ export function generateLine({
 
   function buildEndure() {
     if (length === 'short') {
-      if (rng() < 0.5) {
-        parts.push(preVal, contVal);
-      } else {
-        parts.push(preVal, cutVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(preVal, contVal) },
+        { weight: 1, apply: () => parts.push(preVal, cutVal) },
+      ]);
     } else if (length === 'medium') {
-      if (rng() < 0.5) {
-        parts.push(preVal, contVal, cutVal);
-      } else {
-        parts.push(preVal, contVal, afterVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(preVal, contVal, cutVal) },
+        { weight: 1, apply: () => parts.push(preVal, contVal, afterVal) },
+      ]);
     } else if (length === 'long') {
       parts.push(preVal, contVal, extraCut, cutVal, afterVal);
     } else {
@@ -259,11 +262,10 @@ export function generateLine({
     if (length === 'short') {
       parts.push(contVal, extraCont);
     } else if (length === 'medium') {
-      if (rng() < 0.5) {
-        parts.push(preVal, contVal, extraCont);
-      } else {
-        parts.push(contVal, extraCont, cutVal);
-      }
+      pickPattern([
+        { weight: 1, apply: () => parts.push(preVal, contVal, extraCont) },
+        { weight: 1, apply: () => parts.push(contVal, extraCont, cutVal) },
+      ]);
     } else if (length === 'long') {
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
     } else {
