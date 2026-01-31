@@ -280,6 +280,19 @@ export function generateLine({
     return items[items.length - 1].text;
   }
 
+  function pickCutStrong() {
+    const pool = cutFiltered[intensity] || [];
+    if (!pool.length) return pickCutFromIntensityAvoid(cutFiltered, contVal, strictRepeat);
+    const weightMap = { harsh: 1.6, intense: 1.4, neutral: 0.6, soft: 0.4 };
+    const total = pool.reduce((sum, item) => sum + getToneWeight(item) * (weightMap[item.tone] || 1), 0);
+    let r = rng() * total;
+    for (const item of pool) {
+      r -= getToneWeight(item) * (weightMap[item.tone] || 1);
+      if (r <= 0) return item.text;
+    }
+    return pool[pool.length - 1].text;
+  }
+
   function stripEllipsis(text) {
     return text.replace(/…+/g, '');
   }
@@ -380,6 +393,22 @@ export function generateLine({
     return normalizeWeights([a, b, c]);
   }
 
+  function applyBias4(weights, biasType) {
+    let [a, b, c, d] = weights;
+    if (biasType === 'short') {
+      a *= 1.3;
+      b *= 0.95;
+      c *= 0.85;
+      d *= 0.9;
+    } else if (biasType === 'long' || biasType === 'flat') {
+      a *= 0.75;
+      b *= 1.25;
+      c *= 1.05;
+      d *= 1.15;
+    }
+    return normalizeWeights([a, b, c, d]);
+  }
+
   const lex = lexicon && lexicon.pre ? lexicon : null;
   if (!lex) {
     return '';
@@ -477,32 +506,60 @@ export function generateLine({
       ]);
     } else if (length === 'medium') {
       if (currentTone === 'shaken') {
-        pickPattern([
-          { weight: toneBias.medium[0], apply: () => parts.push(preVal, contVal, cutVal) },
-          { weight: toneBias.medium[1], apply: () => parts.push(preVal, contVal, afterVal) },
-          { weight: toneBias.medium[2], apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
-        ]);
-      } else {
-        const weights = applyBias2(toneBias.medium, cfg.midBias);
+        const baseWeights = [
+          toneBias.medium[0],
+          toneBias.medium[1],
+          toneBias.medium[2],
+          Math.round(toneBias.medium[2] * 0.7),
+        ];
+        const weights = applyBias4(baseWeights, cfg.midBias);
         pickPattern([
           { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
           { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
+          { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
+          { weight: weights[3], apply: () => parts.push(preVal, contVal, extraCont, afterVal) },
+        ]);
+      } else {
+        const baseWeights = [
+          toneBias.medium[0],
+          toneBias.medium[1],
+          Math.round((toneBias.medium[0] + toneBias.medium[1]) * 0.35),
+        ];
+        const weights = applyBias3(baseWeights, cfg.midBias);
+        pickPattern([
+          { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
+          { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
+          { weight: weights[2], apply: () => parts.push(preVal, extraCont, cutVal) },
         ]);
       }
     } else if (length === 'long') {
       // 長は構成パターンを複数用意して揺らぎを作る。
-      let weights = applyBias3(toneBias.long, cfg.longBias);
+      const baseWeights = [
+        toneBias.long[0],
+        toneBias.long[1],
+        toneBias.long[2],
+        Math.round((toneBias.long[0] + toneBias.long[1]) * 0.35),
+      ];
+      let weights = applyBias4(baseWeights, cfg.longBias);
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
         { weight: weights[2], apply: () => parts.push(preVal, contVal, cutVal, afterVal, extraAfter) },
+        { weight: weights[3], apply: () => parts.push(preVal, extraCont, cutVal, afterVal) },
       ]);
     } else {
-      let weights = applyBias3(toneBias.long, cfg.longBias);
+      const baseWeights = [
+        toneBias.long[0],
+        toneBias.long[1],
+        toneBias.long[2],
+        Math.round((toneBias.long[0] + toneBias.long[1]) * 0.35),
+      ];
+      let weights = applyBias4(baseWeights, cfg.longBias);
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },
         { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter) },
+        { weight: weights[3], apply: () => parts.push(preVal, extraCont, extraCont2, cutVal, afterVal) },
       ]);
     }
   }
@@ -510,28 +567,23 @@ export function generateLine({
   function buildSudden() {
     const suddenCont = dropLeadingEllipsis(contVal);
     const suddenExtraCont = dropLeadingEllipsis(extraCont);
+    const suddenCut = dropLeadingEllipsis(pickCutStrong());
     if (length === 'short') {
-      parts.push(suddenCont, cutVal);
+      parts.push(suddenCut);
     } else if (length === 'medium') {
-      parts.push(suddenCont, cutVal, afterVal);
+      parts.push(suddenCut, afterVal);
     } else if (length === 'long') {
-      parts.push(suddenCont, suddenExtraCont, cutVal, afterVal);
+      parts.push(suddenCont, suddenCut, afterVal);
     } else {
-      parts.push(suddenCont, suddenExtraCont, cutVal, afterVal);
+      parts.push(suddenCont, suddenExtraCont, suddenCut, afterVal);
     }
   }
 
   function buildEndure() {
     if (length === 'short') {
-      pickPattern([
-        { weight: 1, apply: () => parts.push(preVal, contVal) },
-        { weight: 1, apply: () => parts.push(preVal, cutVal) },
-      ]);
+      parts.push(preVal, contVal, extraCut, cutVal);
     } else if (length === 'medium') {
-      pickPattern([
-        { weight: 1, apply: () => parts.push(preVal, contVal, cutVal) },
-        { weight: 1, apply: () => parts.push(preVal, contVal, afterVal) },
-      ]);
+      parts.push(preVal, contVal, extraCut, cutVal, afterVal);
     } else if (length === 'long') {
       parts.push(preVal, contVal, extraCut, cutVal, afterVal);
     } else {
@@ -543,12 +595,9 @@ export function generateLine({
     if (length === 'short') {
       parts.push(contVal, extraCont);
     } else if (length === 'medium') {
-      pickPattern([
-        { weight: 1, apply: () => parts.push(preVal, contVal, extraCont) },
-        { weight: 1, apply: () => parts.push(contVal, extraCont, cutVal) },
-      ]);
+      parts.push(preVal, contVal, extraCont, extraCont2, cutVal);
     } else if (length === 'long') {
-      parts.push(preVal, contVal, extraCont, cutVal, afterVal);
+      parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal);
     } else {
       parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
     }
