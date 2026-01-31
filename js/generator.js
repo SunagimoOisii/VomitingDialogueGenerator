@@ -151,9 +151,35 @@ export function generateLine({
     return items[items.length - 1].text;
   }
 
+  function pickByToneWithBias(items, biasFn) {
+    const weights = toneWeights[currentTone] || toneWeights.neutral;
+    const total = items.reduce((sum, item) => {
+      const base = weights[item.tone] || 1;
+      return sum + base * biasFn(item.text);
+    }, 0);
+    let r = rng() * total;
+    for (const item of items) {
+      r -= (weights[item.tone] || 1) * biasFn(item.text);
+      if (r <= 0) return item.text;
+    }
+    return items[items.length - 1].text;
+  }
+
   function pickTextFromIntensity(sets) {
     const bucket = pickFromIntensity(rng, sets, intensity);
     return pickByTone(bucket);
+  }
+
+  function pickAfterFromIntensity(sets) {
+    const bucket = pickFromIntensity(rng, sets, intensity);
+    const biasFn = (text) => {
+      const core = text.replace(/…/g, '');
+      if (core.length <= 2) return 1.4;
+      if (core.length <= 3) return 1.2;
+      return 0.85;
+    };
+    // 余韻は短めを出やすくして間延びを抑える。
+    return pickByToneWithBias(bucket, biasFn);
   }
 
   const lex = lexicon && lexicon.pre ? lexicon : null;
@@ -170,11 +196,11 @@ export function generateLine({
   const preVal = pickTextFromIntensity(pre);
   const contVal = pickTextFromIntensity(cont);
   const cutVal = pickTextFromIntensity(cut);
-  const afterVal = pickTextFromIntensity(after);
+  const afterVal = pickAfterFromIntensity(after);
   const extraCont = pickTextFromIntensity(cont);
   const extraCont2 = pickTextFromIntensity(cont);
   const extraCut = pickTextFromIntensity(cut);
-  const extraAfter = pickTextFromIntensity(after);
+  const extraAfter = pickAfterFromIntensity(after);
 
   const flowMode = flow || 'none';
 
@@ -209,7 +235,7 @@ export function generateLine({
     } else if (length === 'long') {
       // 長は構成パターンを複数用意して揺らぎを作る。
       const intenseBoost = currentTone === 'intense';
-      const weights = intenseBoost ? [34, 51, 15] : [34, 34, 32];
+      const weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
@@ -217,7 +243,7 @@ export function generateLine({
       ]);
     } else {
       const intenseBoost = currentTone === 'intense';
-      const weights = intenseBoost ? [34, 51, 15] : [34, 34, 32];
+      const weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },
