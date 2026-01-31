@@ -178,6 +178,10 @@ export function generateLine({
 
   const flowMode = flow || 'none';
 
+  function dropLeadingEllipsis(text) {
+    return text.replace(/^…+/, '');
+  }
+
   function pickPattern(patterns) {
     const total = patterns.reduce((sum, item) => sum + item.weight, 0);
     let r = rng() * total;
@@ -223,20 +227,16 @@ export function generateLine({
   }
 
   function buildSudden() {
+    const suddenCont = dropLeadingEllipsis(contVal);
+    const suddenExtraCont = dropLeadingEllipsis(extraCont);
     if (length === 'short') {
-      pickPattern([
-        { weight: 1, apply: () => parts.push(contVal, cutVal) },
-        { weight: 1, apply: () => parts.push(contVal, afterVal) },
-      ]);
+      parts.push(suddenCont, cutVal);
     } else if (length === 'medium') {
-      pickPattern([
-        { weight: 1, apply: () => parts.push(contVal, cutVal, afterVal) },
-        { weight: 1, apply: () => parts.push(preVal, contVal, cutVal) },
-      ]);
+      parts.push(suddenCont, cutVal, afterVal);
     } else if (length === 'long') {
-      parts.push(contVal, extraCont, cutVal, afterVal);
+      parts.push(suddenCont, suddenExtraCont, cutVal, afterVal);
     } else {
-      parts.push(contVal, extraCont, cutVal, afterVal, extraAfter);
+      parts.push(suddenCont, suddenExtraCont, cutVal, afterVal);
     }
   }
 
