@@ -154,6 +154,12 @@ function getIntensity(level) {
   return 2;
 }
 
+function getBreakIntensity(value) {
+  if (value === 'weak') return 0;
+  if (value === 'strong') return 2;
+  return 1;
+}
+
 function breakPhrase(text, intensity, rng) {
   if (!text) return '';
   const cleaned = text.replace(/[A-Za-z0-9]/g, '').replace(/ー/g, '').trim();
@@ -188,6 +194,7 @@ function generateLine() {
   const length = getActiveSegValue('length') || 'medium';
   const phrase = sanitizeInput(phraseInput?.value, MAX_PHRASE_LEN);
   const phraseMode = getActiveSegValue('phrase-mode') || 'raw';
+  const breakIntensity = getBreakIntensity(getActiveSegValue('phrase-break'));
 
   const pre = [
     ['うっ…', 'ん…', '…っ', 'う…', 'は…'],
@@ -225,7 +232,9 @@ function generateLine() {
   }
 
   if (phrase) {
-    const phraseVal = phraseMode === 'broken' ? breakPhrase(phrase, intensity, rng) : phrase;
+    const phraseVal = phraseMode === 'broken'
+      ? breakPhrase(phrase, breakIntensity, rng)
+      : phrase;
     if (parts.length >= 2) {
       parts.splice(1, 0, phraseVal);
     } else {
