@@ -36,7 +36,7 @@ export function pickFromIntensity(rng, sets, intensity) {
   // 同一強度に固定すると単調になるため、隣接強度に少し揺らす。
   if (roll < 0.15 && intensity > 0) idx = intensity - 1;
   if (roll > 0.85 && intensity < sets.length - 1) idx = intensity + 1;
-  return pick(rng, sets[idx]);
+  return sets[idx];
 }
 
 export function getIntensity(level) {
@@ -116,6 +116,7 @@ export function generateLine({
     harsh: { harsh: 3, neutral: 2, soft: 1 },
     neutral: { harsh: 1, neutral: 2, soft: 1 },
     soft: { harsh: 1, neutral: 2, soft: 3 },
+    intense: { harsh: 4, neutral: 1, soft: 1 },
   };
   const currentTone = tone && toneWeights[tone] ? tone : 'harsh';
 
@@ -287,9 +288,10 @@ export function generateLine({
     const extraAfter = pickTextFromIntensity(after);
     // 長は構成パターンを複数用意して揺らぎを作る。
     const roll = rng();
+    const intenseBoost = currentTone === 'intense';
     if (roll < 0.34) {
       parts.push(preVal, contVal, cutVal, afterVal);
-    } else if (roll < 0.68) {
+    } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
     } else {
       parts.push(preVal, contVal, cutVal, afterVal, extraAfter);

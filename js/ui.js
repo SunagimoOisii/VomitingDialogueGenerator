@@ -98,12 +98,12 @@ function generateAndRender() {
   const text = generateLine({
     level: levelInput?.value,
     length: getActiveSegValue('length') || 'medium',
+    tone: getActiveSegValue('tone') || 'harsh',
     phrase: phraseInput?.value,
     phraseMode: getActiveSegValue('phrase-mode') || 'raw',
     breakIntensity: getBreakIntensity(getActiveSegValue('phrase-break')),
     breakRules: getEnabledBreakRules(),
     seedText: seedInput?.value,
-    tone: 'harsh',
   });
 
   if (outputEl) {
