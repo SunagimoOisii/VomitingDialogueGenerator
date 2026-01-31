@@ -105,6 +105,7 @@ export function generateLine({
   breakRules,
   seedText,
   tone,
+  lexicon,
 }) {
   const safeSeed = sanitizeInput(seedText, MAX_SEED_LEN);
   const rng = safeSeed ? mulberry32(hashSeed(safeSeed)) : Math.random;
@@ -136,182 +137,15 @@ export function generateLine({
     return pickByTone(bucket);
   }
 
-  const pre = [
-    [
-      { text: 'うっ…', tone: 'neutral' },
-      { text: 'ん…', tone: 'soft' },
-      { text: '…っ', tone: 'neutral' },
-      { text: 'う…', tone: 'soft' },
-      { text: 'は…', tone: 'soft' },
-      { text: 'ひっ…', tone: 'soft' },
-      { text: 'お…', tone: 'soft' },
-      { text: 'ぅ…', tone: 'soft' },
-      { text: 'く…', tone: 'soft' },
-      { text: '…は', tone: 'soft' },
-      { text: 'はっ', tone: 'neutral' },
-      { text: 'んっ…', tone: 'neutral' },
-    ],
-    [
-      { text: 'うぐ…', tone: 'neutral' },
-      { text: 'うう…', tone: 'neutral' },
-      { text: '…っ…', tone: 'neutral' },
-      { text: 'ん…っ', tone: 'neutral' },
-      { text: 'はっ…', tone: 'soft' },
-      { text: 'う゛…', tone: 'harsh' },
-      { text: 'くっ…', tone: 'neutral' },
-      { text: 'ん…う…', tone: 'soft' },
-      { text: 'うっ…ぐ', tone: 'neutral' },
-      { text: 'うう…っ', tone: 'neutral' },
-      { text: 'く…っ', tone: 'neutral' },
-      { text: 'ん…っ…', tone: 'neutral' },
-    ],
-    [
-      { text: 'う゛…', tone: 'harsh' },
-      { text: 'ぐっ…', tone: 'harsh' },
-      { text: 'げほっ…', tone: 'harsh' },
-      { text: 'ぐ…っ', tone: 'harsh' },
-      { text: 'う゛ぐ…', tone: 'harsh' },
-      { text: 'がっ…', tone: 'harsh' },
-      { text: 'ぐ゛…', tone: 'harsh' },
-      { text: 'けほ…っ', tone: 'neutral' },
-      { text: 'が…っ', tone: 'harsh' },
-      { text: 'ぐっ…う', tone: 'harsh' },
-      { text: 'げほ…', tone: 'harsh' },
-      { text: 'ぐ…っ…', tone: 'harsh' },
-    ],
-  ];
-  const cont = [
-    [
-      { text: '…っ…', tone: 'neutral' },
-      { text: '…ん…', tone: 'soft' },
-      { text: '…こっ…', tone: 'neutral' },
-      { text: '…っ', tone: 'neutral' },
-      { text: '…んっ…', tone: 'soft' },
-      { text: '…こ…', tone: 'soft' },
-      { text: '…ん…っ', tone: 'neutral' },
-      { text: '…っ…ん…', tone: 'neutral' },
-      { text: '…こ…っ', tone: 'soft' },
-      { text: '…んっ', tone: 'soft' },
-      { text: '…っ…っ', tone: 'neutral' },
-      { text: '…ん…ん…', tone: 'soft' },
-    ],
-    [
-      { text: '…っ…っ…', tone: 'neutral' },
-      { text: '…こっ…', tone: 'neutral' },
-      { text: '…ぐ…', tone: 'neutral' },
-      { text: '…ん…っ…', tone: 'neutral' },
-      { text: '…こっ…っ…', tone: 'harsh' },
-      { text: '…っ…ぐ…', tone: 'neutral' },
-      { text: '…こ…っ…', tone: 'soft' },
-      { text: '…ん…っ…っ…', tone: 'neutral' },
-      { text: '…っ…ん…っ', tone: 'neutral' },
-      { text: '…こ…っ…っ', tone: 'neutral' },
-      { text: '…ぐ…っ…', tone: 'harsh' },
-      { text: '…ん…っ…ぐ', tone: 'neutral' },
-    ],
-    [
-      { text: '…っ…っ…っ…', tone: 'harsh' },
-      { text: '…ごっ…', tone: 'harsh' },
-      { text: '…ゔ…', tone: 'harsh' },
-      { text: '…ぐっ…っ…', tone: 'harsh' },
-      { text: '…っ…こっ…', tone: 'neutral' },
-      { text: '…ごっ…っ…', tone: 'harsh' },
-      { text: '…ゔ…っ…', tone: 'harsh' },
-      { text: '…ぐ…っ…っ…', tone: 'harsh' },
-      { text: '…ご…っ…', tone: 'harsh' },
-      { text: '…ゔ…ゔ…', tone: 'harsh' },
-      { text: '…っ…ぐっ…', tone: 'harsh' },
-      { text: '…っ…っ…ぐ…', tone: 'harsh' },
-    ],
-  ];
-  const cut = [
-    [
-      { text: 'はっ…', tone: 'neutral' },
-      { text: 'けほ…', tone: 'neutral' },
-      { text: 'ひゅっ…', tone: 'soft' },
-      { text: 'は…', tone: 'soft' },
-      { text: 'けほっ…', tone: 'neutral' },
-      { text: 'ひっ…', tone: 'soft' },
-      { text: 'はぁ…', tone: 'soft' },
-      { text: 'かは…', tone: 'neutral' },
-      { text: 'はっ', tone: 'neutral' },
-      { text: 'けほっ', tone: 'neutral' },
-      { text: 'ひゅ…', tone: 'soft' },
-      { text: 'は…っ', tone: 'soft' },
-    ],
-    [
-      { text: 'かはっ…', tone: 'neutral' },
-      { text: 'けほっ…', tone: 'neutral' },
-      { text: 'はぁ…', tone: 'soft' },
-      { text: 'はっ…は…', tone: 'neutral' },
-      { text: 'けほ…っ', tone: 'neutral' },
-      { text: 'はぁ…っ', tone: 'neutral' },
-      { text: 'かは…っ', tone: 'neutral' },
-      { text: 'ひゅ…っ', tone: 'soft' },
-      { text: 'かはっ', tone: 'neutral' },
-      { text: 'けほ…っ…', tone: 'neutral' },
-      { text: 'はっ…っ', tone: 'neutral' },
-      { text: 'はぁ…っ…', tone: 'neutral' },
-    ],
-    [
-      { text: 'がはっ…', tone: 'harsh' },
-      { text: 'げほっ…', tone: 'harsh' },
-      { text: 'はぁ…っ', tone: 'neutral' },
-      { text: 'がは…っ', tone: 'harsh' },
-      { text: 'げほ…っ', tone: 'harsh' },
-      { text: 'がは…っ…', tone: 'harsh' },
-      { text: 'けほ…っ', tone: 'neutral' },
-      { text: 'げほ…っ…', tone: 'harsh' },
-      { text: 'がはっ', tone: 'harsh' },
-      { text: 'げほ…っ…っ', tone: 'harsh' },
-      { text: 'がは…っ…っ', tone: 'harsh' },
-      { text: 'げほっ', tone: 'harsh' },
-    ],
-  ];
-  const after = [
-    [
-      { text: 'はぁ…', tone: 'soft' },
-      { text: '…はぁ', tone: 'soft' },
-      { text: '…ふぅ', tone: 'soft' },
-      { text: '…は…', tone: 'soft' },
-      { text: '…ふぅ…', tone: 'soft' },
-      { text: '…はぁ…', tone: 'soft' },
-      { text: '…ふ…', tone: 'soft' },
-      { text: '…は…っ', tone: 'neutral' },
-      { text: '…はぁ…っ', tone: 'soft' },
-      { text: '…ふぅ…っ', tone: 'soft' },
-      { text: '…は…は…', tone: 'soft' },
-      { text: '…ふ…ぅ', tone: 'soft' },
-    ],
-    [
-      { text: 'はぁ…はぁ…', tone: 'neutral' },
-      { text: '…はぁ', tone: 'soft' },
-      { text: '…ふぅ…', tone: 'soft' },
-      { text: 'はぁ…っ', tone: 'neutral' },
-      { text: '…はぁ…', tone: 'soft' },
-      { text: '…はぁ…はぁ', tone: 'neutral' },
-      { text: '…ふぅ…っ', tone: 'neutral' },
-      { text: 'はぁ…は…', tone: 'soft' },
-      { text: 'はぁ…はぁ', tone: 'neutral' },
-      { text: '…はぁ…っ', tone: 'neutral' },
-      { text: '…ふぅ…は…', tone: 'soft' },
-      { text: 'はぁ…っ…', tone: 'neutral' },
-    ],
-    [
-      { text: 'はぁ…っ', tone: 'neutral' },
-      { text: '…はぁ…っ', tone: 'neutral' },
-      { text: '…はぁ…はぁ…', tone: 'neutral' },
-      { text: 'はぁ…っ…', tone: 'neutral' },
-      { text: '…はぁ…っ…', tone: 'neutral' },
-      { text: '…はぁ…はぁ…っ', tone: 'neutral' },
-      { text: 'はぁ…っ…はぁ', tone: 'neutral' },
-      { text: '…はぁ…っ…っ', tone: 'neutral' },
-      { text: 'はぁ…っ…っ', tone: 'neutral' },
-      { text: '…はぁ…はぁ…っ…', tone: 'neutral' },
-      { text: 'はぁ…っ…はぁ…', tone: 'neutral' },
-      { text: '…はぁ…っ…はぁ', tone: 'neutral' },
-    ],
-  ];
+  const lex = lexicon && lexicon.pre ? lexicon : null;
+  if (!lex) {
+    return '';
+  }
+
+  const pre = [lex.pre['1'], lex.pre['2'], lex.pre['3']];
+  const cont = [lex.cont['1'], lex.cont['2'], lex.cont['3']];
+  const cut = [lex.cut['1'], lex.cut['2'], lex.cut['3']];
+  const after = [lex.after['1'], lex.after['2'], lex.after['3']];
 
   const parts = [];
   const preVal = pickTextFromIntensity(pre);

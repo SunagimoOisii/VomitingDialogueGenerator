@@ -13,6 +13,7 @@ import {
   makeBreakExample,
   sanitizeInput,
 } from './generator.js';
+import { loadLexicon } from './lexicon.js';
 
 const gate = document.querySelector('.gate');
 const gateAgree = gate?.querySelector('.btn-primary');
@@ -29,6 +30,7 @@ const levelInput = document.querySelector('#level-input');
 const phraseInput = document.querySelector('#phrase-input');
 const seedInput = document.querySelector('#seed-input');
 const breakExampleItems = document.querySelectorAll('.break-examples-list li');
+let lexicon = null;
 
 function getActiveSegValue(name) {
   const seg = document.querySelector(`.seg[data-seg="${name}"]`);
@@ -146,15 +148,23 @@ function generateAndRender() {
     breakIntensity: getBreakIntensity(getActiveSegValue('phrase-break')),
     breakRules: getEnabledBreakRules(),
     seedText: seedInput?.value,
+    lexicon,
   });
 
   if (outputEl) {
-    outputEl.textContent = text;
+    outputEl.textContent = text || '語彙データを読み込めませんでした';
   }
   return text;
 }
 
 export function initUI() {
+  loadLexicon().then((data) => {
+    lexicon = data;
+    if (outputEl && !outputEl.textContent?.trim()) {
+      outputEl.textContent = 'ここに生成結果を表示';
+    }
+  });
+
   if (gate) {
     const skip = loadGatePreference();
     if (!skip) {
