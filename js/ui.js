@@ -136,6 +136,7 @@ function formatParams(params) {
     short: '短',
     medium: '中',
     long: '長',
+    xlong: '超長',
   };
   const breakMap = {
     weak: '弱',

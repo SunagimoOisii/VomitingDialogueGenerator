@@ -165,7 +165,7 @@ export function generateLine({
     } else {
       parts.push(preVal, contVal, afterVal);
     }
-  } else {
+  } else if (length === 'long') {
     const extraCont = pickTextFromIntensity(cont);
     const extraAfter = pickTextFromIntensity(after);
     // 長は構成パターンを複数用意して揺らぎを作る。
@@ -177,6 +177,19 @@ export function generateLine({
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
     } else {
       parts.push(preVal, contVal, cutVal, afterVal, extraAfter);
+    }
+  } else {
+    const extraCont = pickTextFromIntensity(cont);
+    const extraCont2 = pickTextFromIntensity(cont);
+    const extraAfter = pickTextFromIntensity(after);
+    const roll = rng();
+    const intenseBoost = currentTone === 'intense';
+    if (roll < 0.34) {
+      parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter);
+    } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
+      parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal);
+    } else {
+      parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
     }
   }
 
