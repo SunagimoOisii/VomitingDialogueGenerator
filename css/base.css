@@ -1,0 +1,33 @@
+:root {
+  --bg: #f7f7f4;
+  --ink: #0f1111;
+  --muted: #4f5351;
+  --line: #dadad5;
+  --panel: rgba(255, 255, 255, 0.7);
+  --accent: #1e2a28;
+  --accent-2: #97a29a;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.page {
+  user-select: none;
+}
+
+.output-box,
+#output {
+  user-select: text;
+}
