@@ -173,6 +173,36 @@ body {
   color: var(--muted);
 }
 
+.phrase-block {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background: #ffffffc7;
+  display: grid;
+  gap: 10px;
+}
+
+.phrase-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phrase-note {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.phrase-placeholder {
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 input[type="text"],
 input[type="range"] {
   width: 100%;
@@ -227,11 +257,23 @@ input[type="range"] {
   flex-wrap: wrap;
 }
 
-.primary-actions {
+.output-actions {
   display: flex;
   gap: 12px;
   margin-bottom: 14px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.output-actions .btn-primary,
+.output-actions .btn-ghost {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .output-actions {
+    flex-wrap: wrap;
+  }
 }
 
 .btn-primary,
@@ -273,6 +315,10 @@ input[type="range"] {
   padding: 0;
   display: grid;
   gap: 10px;
+}
+
+.history-actions {
+  margin: 4px 0 12px;
 }
 
 .history-empty {

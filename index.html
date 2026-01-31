@@ -24,16 +24,13 @@
           <div class="panel-head">
             <h2>出力</h2>
           </div>
-          <div class="primary-actions">
-            <button id="generate-btn" class="btn-primary">今すぐ生成</button>
-            <button id="history-clear-btn" class="btn-ghost">履歴を全削除</button>
+          <div class="output-actions">
+            <button id="generate-btn" class="btn-primary">生成</button>
+            <button id="copy-btn" class="btn-ghost">コピー</button>
+            <button id="history-add-btn" class="btn-ghost">履歴追加</button>
           </div>
           <div class="output-box">
-            <p id="output">うっ… ん…っ… かはっ… はぁ…</p>
-          </div>
-          <div class="panel-actions">
-            <button id="copy-btn" class="btn-ghost">コピー</button>
-            <button id="history-add-btn" class="btn-ghost">履歴に追加</button>
+            <p id="output">ここに生成結果を表示</p>
           </div>
         </section>
 
@@ -41,6 +38,9 @@
           <div class="panel-head">
             <h2>履歴</h2>
             <div class="meta">最大50件</div>
+          </div>
+          <div class="history-actions">
+            <button id="history-clear-btn" class="btn-ghost">履歴を全削除</button>
           </div>
           <div id="history-empty" class="history-empty">履歴はまだありません</div>
           <ul id="history-list" class="history-list"></ul>
@@ -70,18 +70,23 @@
             </div>
           </label>
 
-          <label class="field">
-            <span class="field-label">フレーズ</span>
-            <input id="phrase-input" type="text" placeholder="任意フレーズ（例: やめろ）" />
-          </label>
-
-          <label class="field">
-            <span class="field-label">フレーズ形式</span>
-            <div class="seg" data-seg="phrase-mode">
-              <button class="seg-btn is-active" data-value="raw">そのまま</button>
-              <button class="seg-btn" data-value="broken">途切れ</button>
+          <div class="phrase-block">
+            <div class="phrase-head">
+              <span class="field-label">フレーズ</span>
+              <span class="phrase-note">拡張予定</span>
             </div>
-          </label>
+            <input id="phrase-input" type="text" placeholder="任意フレーズ（例: やめろ）" />
+            <div class="field">
+              <span class="field-label">フレーズ形式</span>
+              <div class="seg" data-seg="phrase-mode">
+                <button class="seg-btn is-active" data-value="raw">そのまま</button>
+                <button class="seg-btn" data-value="broken">途切れ</button>
+              </div>
+            </div>
+            <div class="phrase-placeholder">
+              <span>追加設定（将来拡張）</span>
+            </div>
+          </div>
 
           <label class="field">
             <span class="field-label">シード</span>
