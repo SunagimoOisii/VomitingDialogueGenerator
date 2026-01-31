@@ -39,6 +39,19 @@
   color: var(--muted);
 }
 
+.field-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.field-desc {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+
 .phrase-block {
   border: 1px solid var(--line);
   border-radius: 14px;

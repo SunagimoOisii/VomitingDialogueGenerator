@@ -68,7 +68,10 @@
 
         <div class="controls">
           <label class="field">
-            <span class="field-label">吐き気レベル</span>
+            <div class="field-head">
+              <span class="field-label">吐き気レベル</span>
+              <span class="field-desc">語彙の強さ</span>
+            </div>
             <input id="level-input" type="range" min="1" max="5" value="3" />
             <div class="ticks">
               <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -76,7 +79,9 @@
           </label>
 
           <label class="field">
-            <span class="field-label">文章量</span>
+            <div class="field-head">
+              <span class="field-label">文章量</span>
+            </div>
             <div class="seg" data-seg="length">
               <button class="seg-btn is-active" data-value="short">短</button>
               <button class="seg-btn" data-value="medium">中</button>
@@ -86,7 +91,10 @@
           </label>
 
           <label class="field">
-            <span class="field-label">トーン</span>
+            <div class="field-head">
+              <span class="field-label">トーン</span>
+              <span class="field-desc">語彙の重み</span>
+            </div>
             <div class="seg" data-seg="tone">
               <button class="seg-btn is-active" data-value="harsh">苦しめ</button>
               <button class="seg-btn" data-value="soft">弱め</button>
@@ -96,7 +104,10 @@
           </label>
 
           <label class="field">
-            <span class="field-label">口調（微差）</span>
+            <div class="field-head">
+              <span class="field-label">口調(微差)</span>
+              <span class="field-desc">言葉の並び方や間の取り方</span>
+            </div>
             <div class="seg" data-seg="style">
               <button class="seg-btn is-active" data-value="none">指定なし</button>
               <button class="seg-btn" data-value="restrained">抑制</button>
@@ -106,7 +117,10 @@
           </label>
 
           <label class="field">
-            <span class="field-label">展開</span>
+            <div class="field-head">
+              <span class="field-label">展開</span>
+              <span class="field-desc">構成の流れ</span>
+            </div>
             <div class="seg" data-seg="flow">
               <button class="seg-btn is-active" data-value="none">指定なし</button>
               <button class="seg-btn" data-value="sudden">突然</button>
@@ -123,14 +137,20 @@
             <div class="phrase-block">
               <input id="phrase-input" type="text" placeholder="任意フレーズ(例: やめろ)" />
               <div class="field">
-                <span class="field-label">フレーズ形式</span>
+                <div class="field-head">
+                  <span class="field-label">フレーズ形式</span>
+                  <span class="field-desc">そのまま or 途切れ</span>
+                </div>
                 <div class="seg" data-seg="phrase-mode">
                   <button class="seg-btn is-active" data-value="raw">そのまま</button>
                   <button class="seg-btn" data-value="broken">途切れ</button>
                 </div>
               </div>
               <div class="field">
-                <span class="field-label">途切れ強度</span>
+                <div class="field-head">
+                  <span class="field-label">途切れ強度</span>
+                  <span class="field-desc">欠ける長さが変わる</span>
+                </div>
                 <div class="seg" data-seg="phrase-break">
                   <button class="seg-btn" data-value="weak">弱</button>
                   <button class="seg-btn is-active" data-value="mid">中</button>
@@ -206,7 +226,10 @@
           </details>
 
           <label class="field">
-            <span class="field-label">シード</span>
+            <div class="field-head">
+              <span class="field-label">シード</span>
+              <span class="field-desc">同じ条件で再現できる</span>
+            </div>
             <input id="seed-input" type="text" placeholder="未指定ならランダム" />
           </label>
         </div>
