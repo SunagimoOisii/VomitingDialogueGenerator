@@ -321,7 +321,12 @@ input[type="range"] {
   background: transparent;
   padding: 6px 10px;
   font-size: 11px;
+}
+
+.history-actions-inline {
   grid-area: action;
+  display: grid;
+  gap: 6px;
 }
 
 .meta {

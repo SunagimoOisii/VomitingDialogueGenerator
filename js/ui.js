@@ -75,6 +75,15 @@ function renderHistory(list = loadHistory()) {
     const meta = document.createElement('div');
     meta.className = 'history-meta';
     meta.textContent = formatParams(item.params);
+    const actions = document.createElement('div');
+    actions.className = 'history-actions-inline';
+    const restore = document.createElement('button');
+    restore.className = 'mini';
+    restore.textContent = '復元';
+    restore.addEventListener('click', () => {
+      applyParams(item.params);
+      generateAndRender();
+    });
     const del = document.createElement('button');
     del.className = 'mini';
     del.textContent = '削除';
@@ -82,9 +91,37 @@ function renderHistory(list = loadHistory()) {
       const next = removeHistoryItem(item.id);
       renderHistory(next);
     });
-    li.append(text, meta, del);
+    actions.append(restore, del);
+    li.append(text, meta, actions);
     historyList.append(li);
   }
+}
+
+function setSegActive(name, value) {
+  const seg = document.querySelector(`.seg[data-seg="${name}"]`);
+  if (!seg) return;
+  for (const btn of seg.querySelectorAll('.seg-btn')) {
+    btn.classList.toggle('is-active', btn.getAttribute('data-value') === value);
+  }
+}
+
+function applyParams(params) {
+  if (!params) return;
+  if (levelInput) levelInput.value = params.level ?? '3';
+  setSegActive('length', params.length || 'medium');
+  setSegActive('tone', params.tone || 'harsh');
+  if (phraseInput) phraseInput.value = params.phrase || '';
+  setSegActive('phrase-mode', params.phraseMode || 'raw');
+  setSegActive('phrase-break', params.breakIntensity || 'mid');
+  if (seedInput) seedInput.value = params.seedText || '';
+  const checks = document.querySelectorAll('input[name="break-rule"]');
+  const enabled = new Set(params.breakRules || []);
+  for (const input of checks) {
+    if (input instanceof HTMLInputElement) {
+      input.checked = enabled.has(input.value);
+    }
+  }
+  updateBreakExamples();
 }
 
 function formatParams(params) {
