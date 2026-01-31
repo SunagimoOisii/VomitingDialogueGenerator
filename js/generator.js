@@ -188,23 +188,50 @@ export function generateLine({
   }
 
   function pickByTone(items) {
-    const weights = toneWeights[currentTone] || toneWeights.emotionless;
-    const total = items.reduce((sum, item) => sum + (weights[item.tone] || 1), 0);
+    const total = items.reduce((sum, item) => sum + getToneWeight(item), 0);
     let r = rng() * total;
     for (const item of items) {
-      r -= weights[item.tone] || 1;
+      r -= getToneWeight(item);
       if (r <= 0) return item.text;
     }
     return items[items.length - 1].text;
   }
 
+  function normalizeCore(text) {
+    return text.replace(/[…,\s]/g, '').trim();
+  }
+
   function getSoundKey(text) {
-    const core = text.replace(/…/g, '');
+    const core = normalizeCore(text);
     return core.slice(0, 2);
+  }
+
+  function getSoundGroup(text) {
+    const core = normalizeCore(text);
+    const head = core[0] || '';
+    if ('んむ'.includes(head)) return 'nasal';
+    if ('はひふへほ'.includes(head)) return 'breath';
+    if ('くけこぐげご'.includes(head)) return 'guttural';
+    if ('うおえゔ'.includes(head)) return 'vowel';
+    if ('がぎぐげご'.includes(head)) return 'harsh';
+    return 'other';
+  }
+
+  function getToneWeight(item) {
+    const weights = toneWeights[currentTone] || toneWeights.emotionless;
+    const base = weights[item.tone] || 1;
+    const levelBias = {
+      0: { harsh: 0.6, intense: 0.7, neutral: 1, soft: 1.1 },
+      1: { harsh: 0.85, intense: 0.95, neutral: 1, soft: 1.05 },
+      2: { harsh: 1.15, intense: 1.2, neutral: 1, soft: 0.85 },
+    };
+    const bias = levelBias[intensity] || levelBias[1];
+    return base * (bias[item.tone] || 1);
   }
 
   function pickByToneAvoid(items, prevText, strict) {
     const prevKey = prevText ? getSoundKey(prevText) : '';
+    const prevGroup = prevText ? getSoundGroup(prevText) : '';
     const filtered = items.filter((item) => {
       if (!prevText) return true;
       if (item.text === prevText) return false;
@@ -220,17 +247,20 @@ export function generateLine({
       rage: 0.65,
     };
     const tonePenalty = repeatPenalty[currentTone] ?? 0.75;
+    const groupPenalty = 0.65;
     const total = pool.reduce((sum, item) => {
-      const base = toneWeights[currentTone]?.[item.tone] || 1;
+      const base = getToneWeight(item);
       const sameKey = !strict && prevKey && getSoundKey(item.text) === prevKey;
-      const factor = sameKey ? tonePenalty : 1;
+      const sameGroup = !strict && prevGroup && getSoundGroup(item.text) === prevGroup;
+      const factor = (sameKey ? tonePenalty : 1) * (sameGroup ? groupPenalty : 1);
       return sum + base * factor;
     }, 0);
     let r = rng() * total;
     for (const item of pool) {
-      const base = toneWeights[currentTone]?.[item.tone] || 1;
+      const base = getToneWeight(item);
       const sameKey = !strict && prevKey && getSoundKey(item.text) === prevKey;
-      const factor = sameKey ? tonePenalty : 1;
+      const sameGroup = !strict && prevGroup && getSoundGroup(item.text) === prevGroup;
+      const factor = (sameKey ? tonePenalty : 1) * (sameGroup ? groupPenalty : 1);
       r -= base * factor;
       if (r <= 0) return item.text;
     }
@@ -238,14 +268,13 @@ export function generateLine({
   }
 
   function pickByToneWithBias(items, biasFn) {
-    const weights = toneWeights[currentTone] || toneWeights.emotionless;
     const total = items.reduce((sum, item) => {
-      const base = weights[item.tone] || 1;
+      const base = getToneWeight(item);
       return sum + base * biasFn(item.text);
     }, 0);
     let r = rng() * total;
     for (const item of items) {
-      r -= (weights[item.tone] || 1) * biasFn(item.text);
+      r -= getToneWeight(item) * biasFn(item.text);
       if (r <= 0) return item.text;
     }
     return items[items.length - 1].text;
