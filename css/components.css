@@ -65,7 +65,7 @@
 .phrase-advanced {
   border: 1px dashed var(--line);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   background: #ffffffc7;
 }
 
@@ -76,10 +76,43 @@
   text-transform: uppercase;
   color: var(--muted);
   list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
 }
 
 .phrase-advanced summary::-webkit-details-marker {
   display: none;
+}
+
+.phrase-advanced summary::after {
+  content: "▸";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.phrase-advanced[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.summary-hint {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: none;
+}
+
+.phrase-advanced summary:hover {
+  color: var(--ink);
+  background: #fff;
+}
+
+.phrase-advanced summary:hover::after {
+  color: var(--ink);
 }
 
 .advanced-grid {
