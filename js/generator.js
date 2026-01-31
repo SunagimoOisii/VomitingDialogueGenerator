@@ -151,6 +151,44 @@ export function generateLine({
     return items[items.length - 1].text;
   }
 
+  function getSoundKey(text) {
+    const core = text.replace(/…/g, '');
+    return core.slice(0, 2);
+  }
+
+  function pickByToneAvoid(items, prevText, strict) {
+    const prevKey = prevText ? getSoundKey(prevText) : '';
+    const filtered = items.filter((item) => {
+      if (!prevText) return true;
+      if (item.text === prevText) return false;
+      if (strict && getSoundKey(item.text) === prevKey) return false;
+      return true;
+    });
+    const pool = filtered.length ? filtered : items;
+    const repeatPenalty = {
+      harsh: 0.75,
+      neutral: 0.7,
+      soft: 0.8,
+      intense: 0.65,
+    };
+    const tonePenalty = repeatPenalty[currentTone] ?? 0.75;
+    const total = pool.reduce((sum, item) => {
+      const base = toneWeights[currentTone]?.[item.tone] || 1;
+      const sameKey = !strict && prevKey && getSoundKey(item.text) === prevKey;
+      const factor = sameKey ? tonePenalty : 1;
+      return sum + base * factor;
+    }, 0);
+    let r = rng() * total;
+    for (const item of pool) {
+      const base = toneWeights[currentTone]?.[item.tone] || 1;
+      const sameKey = !strict && prevKey && getSoundKey(item.text) === prevKey;
+      const factor = sameKey ? tonePenalty : 1;
+      r -= base * factor;
+      if (r <= 0) return item.text;
+    }
+    return pool[pool.length - 1].text;
+  }
+
   function pickByToneWithBias(items, biasFn) {
     const weights = toneWeights[currentTone] || toneWeights.neutral;
     const total = items.reduce((sum, item) => {
@@ -170,6 +208,11 @@ export function generateLine({
     return pickByTone(bucket);
   }
 
+  function pickTextFromIntensityAvoid(sets, prevText, strict) {
+    const bucket = pickFromIntensity(rng, sets, intensity);
+    return pickByToneAvoid(bucket, prevText, strict);
+  }
+
   function pickAfterFromIntensity(sets) {
     const bucket = pickFromIntensity(rng, sets, intensity);
     const biasFn = (text) => {
@@ -180,6 +223,25 @@ export function generateLine({
     };
     // 余韻は短めを出やすくして間延びを抑える。
     return pickByToneWithBias(bucket, biasFn);
+  }
+
+  function pickAfterFromIntensityAvoid(sets, prevText, strict) {
+    const bucket = pickFromIntensity(rng, sets, intensity);
+    const biasFn = (text) => {
+      const core = text.replace(/…/g, '');
+      if (core.length <= 2) return 1.4;
+      if (core.length <= 3) return 1.2;
+      return 0.85;
+    };
+    const prevKey = prevText ? getSoundKey(prevText) : '';
+    const filtered = bucket.filter((item) => {
+      if (!prevText) return true;
+      if (item.text === prevText) return false;
+      if (strict && getSoundKey(item.text) === prevKey) return false;
+      return true;
+    });
+    const pool = filtered.length ? filtered : bucket;
+    return pickByToneWithBias(pool, biasFn);
   }
 
   const lex = lexicon && lexicon.pre ? lexicon : null;
@@ -193,14 +255,15 @@ export function generateLine({
   const after = [lex.after['1'], lex.after['2'], lex.after['3']];
 
   const parts = [];
+  const strictRepeat = length === 'xlong' || flowMode === 'sudden';
   const preVal = pickTextFromIntensity(pre);
-  const contVal = pickTextFromIntensity(cont);
-  const cutVal = pickTextFromIntensity(cut);
-  const afterVal = pickAfterFromIntensity(after);
-  const extraCont = pickTextFromIntensity(cont);
-  const extraCont2 = pickTextFromIntensity(cont);
-  const extraCut = pickTextFromIntensity(cut);
-  const extraAfter = pickAfterFromIntensity(after);
+  const contVal = pickTextFromIntensityAvoid(cont, preVal, strictRepeat);
+  const cutVal = pickTextFromIntensityAvoid(cut, contVal, strictRepeat);
+  const afterVal = pickAfterFromIntensityAvoid(after, cutVal, strictRepeat);
+  const extraCont = pickTextFromIntensityAvoid(cont, contVal, strictRepeat);
+  const extraCont2 = pickTextFromIntensityAvoid(cont, extraCont, strictRepeat);
+  const extraCut = pickTextFromIntensityAvoid(cut, cutVal, strictRepeat);
+  const extraAfter = pickAfterFromIntensityAvoid(after, afterVal, strictRepeat);
 
   const flowMode = flow || 'none';
 
