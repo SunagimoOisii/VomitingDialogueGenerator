@@ -113,10 +113,10 @@ export function generateLine({
   const safePhrase = sanitizeInput(phrase, MAX_PHRASE_LEN);
 
   const toneWeights = {
-    harsh: { harsh: 3, neutral: 2, soft: 1 },
-    neutral: { harsh: 1, neutral: 2, soft: 1 },
-    soft: { harsh: 1, neutral: 2, soft: 3 },
-    intense: { harsh: 4, neutral: 1, soft: 1 },
+    harsh: { harsh: 5, neutral: 2, soft: 1 },
+    neutral: { harsh: 1, neutral: 5, soft: 1 },
+    soft: { harsh: 1, neutral: 2, soft: 5 },
+    intense: { harsh: 6, neutral: 1, soft: 1 },
   };
   const currentTone = tone && toneWeights[tone] ? tone : 'harsh';
 
@@ -146,6 +146,10 @@ export function generateLine({
       { text: 'ひっ…', tone: 'soft' },
       { text: 'お…', tone: 'soft' },
       { text: 'ぅ…', tone: 'soft' },
+      { text: 'く…', tone: 'soft' },
+      { text: '…は', tone: 'soft' },
+      { text: 'はっ', tone: 'neutral' },
+      { text: 'んっ…', tone: 'neutral' },
     ],
     [
       { text: 'うぐ…', tone: 'neutral' },
@@ -156,6 +160,10 @@ export function generateLine({
       { text: 'う゛…', tone: 'harsh' },
       { text: 'くっ…', tone: 'neutral' },
       { text: 'ん…う…', tone: 'soft' },
+      { text: 'うっ…ぐ', tone: 'neutral' },
+      { text: 'うう…っ', tone: 'neutral' },
+      { text: 'く…っ', tone: 'neutral' },
+      { text: 'ん…っ…', tone: 'neutral' },
     ],
     [
       { text: 'う゛…', tone: 'harsh' },
@@ -166,6 +174,10 @@ export function generateLine({
       { text: 'がっ…', tone: 'harsh' },
       { text: 'ぐ゛…', tone: 'harsh' },
       { text: 'けほ…っ', tone: 'neutral' },
+      { text: 'が…っ', tone: 'harsh' },
+      { text: 'ぐっ…う', tone: 'harsh' },
+      { text: 'げほ…', tone: 'harsh' },
+      { text: 'ぐ…っ…', tone: 'harsh' },
     ],
   ];
   const cont = [
@@ -178,6 +190,10 @@ export function generateLine({
       { text: '…こ…', tone: 'soft' },
       { text: '…ん…っ', tone: 'neutral' },
       { text: '…っ…ん…', tone: 'neutral' },
+      { text: '…こ…っ', tone: 'soft' },
+      { text: '…んっ', tone: 'soft' },
+      { text: '…っ…っ', tone: 'neutral' },
+      { text: '…ん…ん…', tone: 'soft' },
     ],
     [
       { text: '…っ…っ…', tone: 'neutral' },
@@ -188,6 +204,10 @@ export function generateLine({
       { text: '…っ…ぐ…', tone: 'neutral' },
       { text: '…こ…っ…', tone: 'soft' },
       { text: '…ん…っ…っ…', tone: 'neutral' },
+      { text: '…っ…ん…っ', tone: 'neutral' },
+      { text: '…こ…っ…っ', tone: 'neutral' },
+      { text: '…ぐ…っ…', tone: 'harsh' },
+      { text: '…ん…っ…ぐ', tone: 'neutral' },
     ],
     [
       { text: '…っ…っ…っ…', tone: 'harsh' },
@@ -198,6 +218,10 @@ export function generateLine({
       { text: '…ごっ…っ…', tone: 'harsh' },
       { text: '…ゔ…っ…', tone: 'harsh' },
       { text: '…ぐ…っ…っ…', tone: 'harsh' },
+      { text: '…ご…っ…', tone: 'harsh' },
+      { text: '…ゔ…ゔ…', tone: 'harsh' },
+      { text: '…っ…ぐっ…', tone: 'harsh' },
+      { text: '…っ…っ…ぐ…', tone: 'harsh' },
     ],
   ];
   const cut = [
@@ -210,6 +234,10 @@ export function generateLine({
       { text: 'ひっ…', tone: 'soft' },
       { text: 'はぁ…', tone: 'soft' },
       { text: 'かは…', tone: 'neutral' },
+      { text: 'はっ', tone: 'neutral' },
+      { text: 'けほっ', tone: 'neutral' },
+      { text: 'ひゅ…', tone: 'soft' },
+      { text: 'は…っ', tone: 'soft' },
     ],
     [
       { text: 'かはっ…', tone: 'neutral' },
@@ -220,6 +248,10 @@ export function generateLine({
       { text: 'はぁ…っ', tone: 'neutral' },
       { text: 'かは…っ', tone: 'neutral' },
       { text: 'ひゅ…っ', tone: 'soft' },
+      { text: 'かはっ', tone: 'neutral' },
+      { text: 'けほ…っ…', tone: 'neutral' },
+      { text: 'はっ…っ', tone: 'neutral' },
+      { text: 'はぁ…っ…', tone: 'neutral' },
     ],
     [
       { text: 'がはっ…', tone: 'harsh' },
@@ -230,6 +262,10 @@ export function generateLine({
       { text: 'がは…っ…', tone: 'harsh' },
       { text: 'けほ…っ', tone: 'neutral' },
       { text: 'げほ…っ…', tone: 'harsh' },
+      { text: 'がはっ', tone: 'harsh' },
+      { text: 'げほ…っ…っ', tone: 'harsh' },
+      { text: 'がは…っ…っ', tone: 'harsh' },
+      { text: 'げほっ', tone: 'harsh' },
     ],
   ];
   const after = [
@@ -242,6 +278,10 @@ export function generateLine({
       { text: '…はぁ…', tone: 'soft' },
       { text: '…ふ…', tone: 'soft' },
       { text: '…は…っ', tone: 'neutral' },
+      { text: '…はぁ…っ', tone: 'soft' },
+      { text: '…ふぅ…っ', tone: 'soft' },
+      { text: '…は…は…', tone: 'soft' },
+      { text: '…ふ…ぅ', tone: 'soft' },
     ],
     [
       { text: 'はぁ…はぁ…', tone: 'neutral' },
@@ -252,6 +292,10 @@ export function generateLine({
       { text: '…はぁ…はぁ', tone: 'neutral' },
       { text: '…ふぅ…っ', tone: 'neutral' },
       { text: 'はぁ…は…', tone: 'soft' },
+      { text: 'はぁ…はぁ', tone: 'neutral' },
+      { text: '…はぁ…っ', tone: 'neutral' },
+      { text: '…ふぅ…は…', tone: 'soft' },
+      { text: 'はぁ…っ…', tone: 'neutral' },
     ],
     [
       { text: 'はぁ…っ', tone: 'neutral' },
@@ -262,6 +306,10 @@ export function generateLine({
       { text: '…はぁ…はぁ…っ', tone: 'neutral' },
       { text: 'はぁ…っ…はぁ', tone: 'neutral' },
       { text: '…はぁ…っ…っ', tone: 'neutral' },
+      { text: 'はぁ…っ…っ', tone: 'neutral' },
+      { text: '…はぁ…はぁ…っ…', tone: 'neutral' },
+      { text: 'はぁ…っ…はぁ…', tone: 'neutral' },
+      { text: '…はぁ…っ…はぁ', tone: 'neutral' },
     ],
   ];
 
