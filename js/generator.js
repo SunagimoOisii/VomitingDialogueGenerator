@@ -30,12 +30,12 @@ export function pick(rng, list) {
   return list[Math.floor(rng() * list.length)];
 }
 
-export function pickFromIntensity(rng, sets, intensity) {
+export function pickFromIntensity(rng, sets, intensity, lowThreshold = 0.15, highThreshold = 0.85) {
   const roll = rng();
   let idx = intensity;
   // 同一強度に固定すると単調になるため、隣接強度に少し揺らす。
-  if (roll < 0.15 && intensity > 0) idx = intensity - 1;
-  if (roll > 0.85 && intensity < sets.length - 1) idx = intensity + 1;
+  if (roll < lowThreshold && intensity > 0) idx = intensity - 1;
+  if (roll > highThreshold && intensity < sets.length - 1) idx = intensity + 1;
   return sets[idx];
 }
 
@@ -123,6 +123,7 @@ export function generateLine({
   breakWeights,
   seedText,
   tone,
+  style,
   flow,
   lexicon,
 }) {
@@ -139,6 +140,13 @@ export function generateLine({
     intense: { harsh: 6, neutral: 1, soft: 1 },
   };
   const currentTone = tone && toneWeights[tone] ? tone : 'harsh';
+  const styleConfig = {
+    none: { jitterLow: 0.15, jitterHigh: 0.85, shortBias: 'none', midBias: 'none', longBias: 'none' },
+    restrained: { jitterLow: 0.12, jitterHigh: 0.88, shortBias: 'cut', midBias: 'cut', longBias: 'short' },
+    unsteady: { jitterLow: 0.22, jitterHigh: 0.78, shortBias: 'cont', midBias: 'after', longBias: 'long' },
+    flat: { jitterLow: 0.08, jitterHigh: 0.92, shortBias: 'none', midBias: 'none', longBias: 'flat' },
+  };
+  const currentStyle = styleConfig[style] ? style : 'none';
 
   function pickByTone(items) {
     const weights = toneWeights[currentTone] || toneWeights.neutral;
@@ -204,17 +212,20 @@ export function generateLine({
   }
 
   function pickTextFromIntensity(sets) {
-    const bucket = pickFromIntensity(rng, sets, intensity);
+    const cfg = styleConfig[currentStyle];
+    const bucket = pickFromIntensity(rng, sets, intensity, cfg.jitterLow, cfg.jitterHigh);
     return pickByTone(bucket);
   }
 
   function pickTextFromIntensityAvoid(sets, prevText, strict) {
-    const bucket = pickFromIntensity(rng, sets, intensity);
+    const cfg = styleConfig[currentStyle];
+    const bucket = pickFromIntensity(rng, sets, intensity, cfg.jitterLow, cfg.jitterHigh);
     return pickByToneAvoid(bucket, prevText, strict);
   }
 
   function pickAfterFromIntensity(sets) {
-    const bucket = pickFromIntensity(rng, sets, intensity);
+    const cfg = styleConfig[currentStyle];
+    const bucket = pickFromIntensity(rng, sets, intensity, cfg.jitterLow, cfg.jitterHigh);
     const biasFn = (text) => {
       const core = text.replace(/…/g, '');
       if (core.length <= 2) return 1.4;
@@ -226,7 +237,8 @@ export function generateLine({
   }
 
   function pickAfterFromIntensityAvoid(sets, prevText, strict) {
-    const bucket = pickFromIntensity(rng, sets, intensity);
+    const cfg = styleConfig[currentStyle];
+    const bucket = pickFromIntensity(rng, sets, intensity, cfg.jitterLow, cfg.jitterHigh);
     const biasFn = (text) => {
       const core = text.replace(/…/g, '');
       if (core.length <= 2) return 1.4;
@@ -284,20 +296,25 @@ export function generateLine({
   }
 
   function buildDefault() {
+    const cfg = styleConfig[currentStyle];
     if (length === 'short') {
+      const weights = cfg.shortBias === 'cut' ? [35, 65] : cfg.shortBias === 'cont' ? [65, 35] : [50, 50];
       pickPattern([
-        { weight: 1, apply: () => parts.push(preVal, contVal) },
-        { weight: 1, apply: () => parts.push(contVal, cutVal) },
+        { weight: weights[0], apply: () => parts.push(preVal, contVal) },
+        { weight: weights[1], apply: () => parts.push(contVal, cutVal) },
       ]);
     } else if (length === 'medium') {
+      const weights = cfg.midBias === 'cut' ? [65, 35] : cfg.midBias === 'after' ? [35, 65] : [50, 50];
       pickPattern([
-        { weight: 1, apply: () => parts.push(preVal, contVal, cutVal) },
-        { weight: 1, apply: () => parts.push(preVal, contVal, afterVal) },
+        { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
+        { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
       ]);
     } else if (length === 'long') {
       // 長は構成パターンを複数用意して揺らぎを作る。
       const intenseBoost = currentTone === 'intense';
-      const weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
+      let weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
+      if (cfg.longBias === 'short') weights = [55, 30, 15];
+      if (cfg.longBias === 'long') weights = [30, 55, 15];
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
@@ -305,7 +322,9 @@ export function generateLine({
       ]);
     } else {
       const intenseBoost = currentTone === 'intense';
-      const weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
+      let weights = intenseBoost ? [40, 50, 10] : [40, 40, 20];
+      if (cfg.longBias === 'short') weights = [55, 30, 15];
+      if (cfg.longBias === 'long') weights = [30, 55, 15];
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },
