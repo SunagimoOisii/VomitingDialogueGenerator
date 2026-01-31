@@ -111,39 +111,170 @@ export function generateLine({
   const intensity = getIntensity(level);
   const safePhrase = sanitizeInput(phrase, MAX_PHRASE_LEN);
 
+  const toneWeights = {
+    harsh: { harsh: 3, neutral: 2, soft: 1 },
+    neutral: { harsh: 1, neutral: 2, soft: 1 },
+    soft: { harsh: 1, neutral: 2, soft: 3 },
+  };
+  const currentTone = 'harsh';
+
+  function pickByTone(items) {
+    const weights = toneWeights[currentTone] || toneWeights.neutral;
+    const total = items.reduce((sum, item) => sum + (weights[item.tone] || 1), 0);
+    let r = rng() * total;
+    for (const item of items) {
+      r -= weights[item.tone] || 1;
+      if (r <= 0) return item.text;
+    }
+    return items[items.length - 1].text;
+  }
+
+  function pickTextFromIntensity(sets) {
+    const bucket = pickFromIntensity(rng, sets, intensity);
+    return pickByTone(bucket);
+  }
+
   const pre = [
-    ['うっ…', 'ん…', '…っ', 'う…', 'は…', 'ひっ…', 'お…', 'ぅ…'],
-    ['うぐ…', 'うう…', '…っ…', 'ん…っ', 'はっ…', 'う゛…', 'くっ…', 'ん…う…'],
-    ['う゛…', 'ぐっ…', 'げほっ…', 'ぐ…っ', 'う゛ぐ…', 'がっ…', 'ぐ゛…', 'けほ…っ'],
+    [
+      { text: 'うっ…', tone: 'neutral' },
+      { text: 'ん…', tone: 'soft' },
+      { text: '…っ', tone: 'neutral' },
+      { text: 'う…', tone: 'soft' },
+      { text: 'は…', tone: 'soft' },
+      { text: 'ひっ…', tone: 'soft' },
+      { text: 'お…', tone: 'soft' },
+      { text: 'ぅ…', tone: 'soft' },
+    ],
+    [
+      { text: 'うぐ…', tone: 'neutral' },
+      { text: 'うう…', tone: 'neutral' },
+      { text: '…っ…', tone: 'neutral' },
+      { text: 'ん…っ', tone: 'neutral' },
+      { text: 'はっ…', tone: 'soft' },
+      { text: 'う゛…', tone: 'harsh' },
+      { text: 'くっ…', tone: 'neutral' },
+      { text: 'ん…う…', tone: 'soft' },
+    ],
+    [
+      { text: 'う゛…', tone: 'harsh' },
+      { text: 'ぐっ…', tone: 'harsh' },
+      { text: 'げほっ…', tone: 'harsh' },
+      { text: 'ぐ…っ', tone: 'harsh' },
+      { text: 'う゛ぐ…', tone: 'harsh' },
+      { text: 'がっ…', tone: 'harsh' },
+      { text: 'ぐ゛…', tone: 'harsh' },
+      { text: 'けほ…っ', tone: 'neutral' },
+    ],
   ];
   const cont = [
-    ['…っ…', '…ん…', '…こっ…', '…っ', '…んっ…', '…こ…', '…ん…っ', '…っ…ん…'],
-    ['…っ…っ…', '…こっ…', '…ぐ…', '…ん…っ…', '…こっ…っ…', '…っ…ぐ…', '…こ…っ…', '…ん…っ…っ…'],
-    ['…っ…っ…っ…', '…ごっ…', '…ゔ…', '…ぐっ…っ…', '…っ…こっ…', '…ごっ…っ…', '…ゔ…っ…', '…ぐ…っ…っ…'],
+    [
+      { text: '…っ…', tone: 'neutral' },
+      { text: '…ん…', tone: 'soft' },
+      { text: '…こっ…', tone: 'neutral' },
+      { text: '…っ', tone: 'neutral' },
+      { text: '…んっ…', tone: 'soft' },
+      { text: '…こ…', tone: 'soft' },
+      { text: '…ん…っ', tone: 'neutral' },
+      { text: '…っ…ん…', tone: 'neutral' },
+    ],
+    [
+      { text: '…っ…っ…', tone: 'neutral' },
+      { text: '…こっ…', tone: 'neutral' },
+      { text: '…ぐ…', tone: 'neutral' },
+      { text: '…ん…っ…', tone: 'neutral' },
+      { text: '…こっ…っ…', tone: 'harsh' },
+      { text: '…っ…ぐ…', tone: 'neutral' },
+      { text: '…こ…っ…', tone: 'soft' },
+      { text: '…ん…っ…っ…', tone: 'neutral' },
+    ],
+    [
+      { text: '…っ…っ…っ…', tone: 'harsh' },
+      { text: '…ごっ…', tone: 'harsh' },
+      { text: '…ゔ…', tone: 'harsh' },
+      { text: '…ぐっ…っ…', tone: 'harsh' },
+      { text: '…っ…こっ…', tone: 'neutral' },
+      { text: '…ごっ…っ…', tone: 'harsh' },
+      { text: '…ゔ…っ…', tone: 'harsh' },
+      { text: '…ぐ…っ…っ…', tone: 'harsh' },
+    ],
   ];
   const cut = [
-    ['はっ…', 'けほ…', 'ひゅっ…', 'は…', 'けほっ…', 'ひっ…', 'はぁ…', 'かは…'],
-    ['かはっ…', 'けほっ…', 'はぁ…', 'はっ…は…', 'けほ…っ', 'はぁ…っ', 'かは…っ', 'ひゅ…っ'],
-    ['がはっ…', 'げほっ…', 'はぁ…っ', 'がは…っ', 'げほ…っ', 'がは…っ…', 'けほ…っ', 'げほ…っ…'],
+    [
+      { text: 'はっ…', tone: 'neutral' },
+      { text: 'けほ…', tone: 'neutral' },
+      { text: 'ひゅっ…', tone: 'soft' },
+      { text: 'は…', tone: 'soft' },
+      { text: 'けほっ…', tone: 'neutral' },
+      { text: 'ひっ…', tone: 'soft' },
+      { text: 'はぁ…', tone: 'soft' },
+      { text: 'かは…', tone: 'neutral' },
+    ],
+    [
+      { text: 'かはっ…', tone: 'neutral' },
+      { text: 'けほっ…', tone: 'neutral' },
+      { text: 'はぁ…', tone: 'soft' },
+      { text: 'はっ…は…', tone: 'neutral' },
+      { text: 'けほ…っ', tone: 'neutral' },
+      { text: 'はぁ…っ', tone: 'neutral' },
+      { text: 'かは…っ', tone: 'neutral' },
+      { text: 'ひゅ…っ', tone: 'soft' },
+    ],
+    [
+      { text: 'がはっ…', tone: 'harsh' },
+      { text: 'げほっ…', tone: 'harsh' },
+      { text: 'はぁ…っ', tone: 'neutral' },
+      { text: 'がは…っ', tone: 'harsh' },
+      { text: 'げほ…っ', tone: 'harsh' },
+      { text: 'がは…っ…', tone: 'harsh' },
+      { text: 'けほ…っ', tone: 'neutral' },
+      { text: 'げほ…っ…', tone: 'harsh' },
+    ],
   ];
   const after = [
-    ['はぁ…', '…はぁ', '…ふぅ', '…は…', '…ふぅ…', '…はぁ…', '…ふ…', '…は…っ'],
-    ['はぁ…はぁ…', '…はぁ', '…ふぅ…', 'はぁ…っ', '…はぁ…', '…はぁ…はぁ', '…ふぅ…っ', 'はぁ…は…'],
-    ['はぁ…っ', '…はぁ…っ', '…はぁ…はぁ…', 'はぁ…っ…', '…はぁ…っ…', '…はぁ…はぁ…っ', 'はぁ…っ…はぁ', '…はぁ…っ…っ'],
+    [
+      { text: 'はぁ…', tone: 'soft' },
+      { text: '…はぁ', tone: 'soft' },
+      { text: '…ふぅ', tone: 'soft' },
+      { text: '…は…', tone: 'soft' },
+      { text: '…ふぅ…', tone: 'soft' },
+      { text: '…はぁ…', tone: 'soft' },
+      { text: '…ふ…', tone: 'soft' },
+      { text: '…は…っ', tone: 'neutral' },
+    ],
+    [
+      { text: 'はぁ…はぁ…', tone: 'neutral' },
+      { text: '…はぁ', tone: 'soft' },
+      { text: '…ふぅ…', tone: 'soft' },
+      { text: 'はぁ…っ', tone: 'neutral' },
+      { text: '…はぁ…', tone: 'soft' },
+      { text: '…はぁ…はぁ', tone: 'neutral' },
+      { text: '…ふぅ…っ', tone: 'neutral' },
+      { text: 'はぁ…は…', tone: 'soft' },
+    ],
+    [
+      { text: 'はぁ…っ', tone: 'neutral' },
+      { text: '…はぁ…っ', tone: 'neutral' },
+      { text: '…はぁ…はぁ…', tone: 'neutral' },
+      { text: 'はぁ…っ…', tone: 'neutral' },
+      { text: '…はぁ…っ…', tone: 'neutral' },
+      { text: '…はぁ…はぁ…っ', tone: 'neutral' },
+      { text: 'はぁ…っ…はぁ', tone: 'neutral' },
+      { text: '…はぁ…っ…っ', tone: 'neutral' },
+    ],
   ];
 
   const parts = [];
-  const preVal = pickFromIntensity(rng, pre, intensity);
-  const contVal = pickFromIntensity(rng, cont, intensity);
-  const cutVal = pickFromIntensity(rng, cut, intensity);
-  const afterVal = pickFromIntensity(rng, after, intensity);
+  const preVal = pickTextFromIntensity(pre);
+  const contVal = pickTextFromIntensity(cont);
+  const cutVal = pickTextFromIntensity(cut);
+  const afterVal = pickTextFromIntensity(after);
 
   if (length === 'short') {
     parts.push(preVal, contVal);
   } else if (length === 'medium') {
     parts.push(preVal, contVal, cutVal);
   } else {
-    const extraCont = pickFromIntensity(rng, cont, intensity);
+    const extraCont = pickTextFromIntensity(cont);
     // 長はときどき継続音を追加して尺と勢いを確保する。
     if (rng() < 0.4) {
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
