@@ -127,6 +127,12 @@ export function generateLine({
   flow,
   lexicon,
 }) {
+  const toneAlias = {
+    harsh: 'rage',
+    neutral: 'emotionless',
+    soft: 'timid',
+    intense: 'shaken',
+  };
   const safeSeed = sanitizeInput(seedText, MAX_SEED_LEN);
   const rng = safeSeed ? mulberry32(hashSeed(safeSeed)) : Math.random;
 
@@ -134,12 +140,14 @@ export function generateLine({
   const safePhrase = sanitizeInput(phrase, MAX_PHRASE_LEN);
 
   const toneWeights = {
-    harsh: { harsh: 5, neutral: 2, soft: 1 },
-    neutral: { harsh: 1, neutral: 8, soft: 1 },
-    soft: { harsh: 0.5, neutral: 2, soft: 6 },
-    intense: { harsh: 6, neutral: 1, soft: 1 },
+    emotionless: { harsh: 0.5, neutral: 9, soft: 0.5, intense: 0.25 },
+    timid: { harsh: 0.25, neutral: 1.5, soft: 8.5, intense: 0.25 },
+    shaken: { harsh: 0.75, neutral: 3.5, soft: 1.5, intense: 4.5 },
+    panic: { harsh: 4, neutral: 1.5, soft: 0.75, intense: 4.5 },
+    rage: { harsh: 7, neutral: 0.5, soft: 0.25, intense: 4.5 },
   };
-  const currentTone = tone && toneWeights[tone] ? tone : 'harsh';
+  const normalizedTone = toneAlias[tone] || tone;
+  const currentTone = normalizedTone && toneWeights[normalizedTone] ? normalizedTone : 'emotionless';
   const styleConfig = {
     none: { jitterLow: 0.15, jitterHigh: 0.85, shortBias: 'none', midBias: 'none', longBias: 'none' },
     restrained: { jitterLow: 0.12, jitterHigh: 0.88, shortBias: 'cut', midBias: 'cut', longBias: 'short' },
@@ -147,9 +155,16 @@ export function generateLine({
     flat: { jitterLow: 0.08, jitterHigh: 0.92, shortBias: 'none', midBias: 'none', longBias: 'flat' },
   };
   const currentStyle = styleConfig[style] ? style : 'none';
+  const toneStructureBias = {
+    emotionless: { short: [55, 45], medium: [55, 45], long: [40, 45, 15] },
+    timid: { short: [70, 30], medium: [35, 65], long: [30, 35, 35] },
+    shaken: { short: [40, 60], medium: [25, 25, 50], long: [15, 70, 15] },
+    panic: { short: [35, 65], medium: [75, 25], long: [70, 20, 10] },
+    rage: { short: [30, 70], medium: [75, 25], long: [60, 25, 15] },
+  };
 
   function pickByTone(items) {
-    const weights = toneWeights[currentTone] || toneWeights.neutral;
+    const weights = toneWeights[currentTone] || toneWeights.emotionless;
     const total = items.reduce((sum, item) => sum + (weights[item.tone] || 1), 0);
     let r = rng() * total;
     for (const item of items) {
@@ -174,10 +189,11 @@ export function generateLine({
     });
     const pool = filtered.length ? filtered : items;
     const repeatPenalty = {
-      harsh: 0.75,
-      neutral: 0.7,
-      soft: 0.8,
-      intense: 0.65,
+      emotionless: 0.7,
+      timid: 0.8,
+      shaken: 0.7,
+      panic: 0.75,
+      rage: 0.65,
     };
     const tonePenalty = repeatPenalty[currentTone] ?? 0.75;
     const total = pool.reduce((sum, item) => {
@@ -198,7 +214,7 @@ export function generateLine({
   }
 
   function pickByToneWithBias(items, biasFn) {
-    const weights = toneWeights[currentTone] || toneWeights.neutral;
+    const weights = toneWeights[currentTone] || toneWeights.emotionless;
     const total = items.reduce((sum, item) => {
       const base = weights[item.tone] || 1;
       return sum + base * biasFn(item.text);
@@ -256,6 +272,37 @@ export function generateLine({
     return pickByToneWithBias(pool, biasFn);
   }
 
+  function normalizeWeights(weights) {
+    const total = weights.reduce((sum, value) => sum + value, 0) || 1;
+    return weights.map((value) => Math.max(1, Math.round((value / total) * 100)));
+  }
+
+  function applyBias2(weights, biasType) {
+    let [a, b] = weights;
+    if (biasType === 'cut' || biasType === 'after') {
+      b *= 1.3;
+      a *= 0.7;
+    } else if (biasType === 'cont') {
+      a *= 1.3;
+      b *= 0.7;
+    }
+    return normalizeWeights([a, b]);
+  }
+
+  function applyBias3(weights, biasType) {
+    let [a, b, c] = weights;
+    if (biasType === 'short') {
+      a *= 1.3;
+      b *= 0.9;
+      c *= 0.8;
+    } else if (biasType === 'long' || biasType === 'flat') {
+      a *= 0.8;
+      b *= 1.3;
+      c *= 0.9;
+    }
+    return normalizeWeights([a, b, c]);
+  }
+
   const lex = lexicon && lexicon.pre ? lexicon : null;
   if (!lex) {
     return '';
@@ -297,21 +344,22 @@ export function generateLine({
 
   function buildDefault() {
     const cfg = styleConfig[currentStyle];
+    const toneBias = toneStructureBias[currentTone] || toneStructureBias.emotionless;
     if (length === 'short') {
-      const weights = cfg.shortBias === 'cut' ? [35, 65] : cfg.shortBias === 'cont' ? [65, 35] : [50, 50];
+      const weights = applyBias2(toneBias.short, cfg.shortBias);
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal) },
         { weight: weights[1], apply: () => parts.push(contVal, cutVal) },
       ]);
     } else if (length === 'medium') {
-      if (currentTone === 'intense') {
+      if (currentTone === 'shaken') {
         pickPattern([
-          { weight: 30, apply: () => parts.push(preVal, contVal, cutVal) },
-          { weight: 30, apply: () => parts.push(preVal, contVal, afterVal) },
-          { weight: 40, apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
+          { weight: toneBias.medium[0], apply: () => parts.push(preVal, contVal, cutVal) },
+          { weight: toneBias.medium[1], apply: () => parts.push(preVal, contVal, afterVal) },
+          { weight: toneBias.medium[2], apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
         ]);
       } else {
-        const weights = cfg.midBias === 'cut' ? [65, 35] : cfg.midBias === 'after' ? [35, 65] : [50, 50];
+        const weights = applyBias2(toneBias.medium, cfg.midBias);
         pickPattern([
           { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
           { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
@@ -319,20 +367,14 @@ export function generateLine({
       }
     } else if (length === 'long') {
       // 長は構成パターンを複数用意して揺らぎを作る。
-      const intenseBoost = currentTone === 'intense';
-      let weights = intenseBoost ? [35, 55, 10] : [40, 40, 20];
-      if (cfg.longBias === 'short') weights = [55, 30, 15];
-      if (cfg.longBias === 'long') weights = [30, 55, 15];
+      let weights = applyBias3(toneBias.long, cfg.longBias);
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
         { weight: weights[2], apply: () => parts.push(preVal, contVal, cutVal, afterVal, extraAfter) },
       ]);
     } else {
-      const intenseBoost = currentTone === 'intense';
-      let weights = intenseBoost ? [35, 55, 10] : [40, 40, 20];
-      if (cfg.longBias === 'short') weights = [55, 30, 15];
-      if (cfg.longBias === 'long') weights = [30, 55, 15];
+      let weights = applyBias3(toneBias.long, cfg.longBias);
       pickPattern([
         { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
         { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },

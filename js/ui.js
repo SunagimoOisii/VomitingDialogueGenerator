@@ -50,6 +50,16 @@ function getEnabledBreakRules() {
   return enabled.length ? enabled : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
 }
 
+function normalizeTone(value) {
+  const map = {
+    harsh: 'rage',
+    neutral: 'emotionless',
+    soft: 'timid',
+    intense: 'shaken',
+  };
+  return map[value] || value;
+}
+
 function getBreakRuleWeights() {
   const sliders = document.querySelectorAll('.rule-weight-slider');
   const weights = {};
@@ -127,7 +137,7 @@ function applyParams(params) {
   if (!params) return;
   if (levelInput) levelInput.value = params.level ?? '3';
   setSegActive('length', params.length || 'medium');
-  setSegActive('tone', params.tone || 'harsh');
+  setSegActive('tone', normalizeTone(params.tone) || 'emotionless');
   setSegActive('style', params.style || 'none');
   setSegActive('flow', params.flow || 'none');
   if (phraseInput) phraseInput.value = params.phrase || '';
@@ -159,10 +169,11 @@ function applyParams(params) {
 function formatParams(params) {
   if (!params) return 'パラメータ未記録';
   const toneMap = {
-    harsh: '苦しめ',
-    soft: '弱め',
-    neutral: '淡々',
-    intense: '追い込み',
+    emotionless: '無感情',
+    timid: '弱気',
+    shaken: '動揺',
+    panic: '焦り',
+    rage: '激昂',
   };
   const styleMap = {
     none: '指定なし',
@@ -197,7 +208,7 @@ function formatParams(params) {
   const base = [
     `Lv${params.level ?? '-'}`,
     lengthMap[params.length] || '中',
-    toneMap[params.tone] || '苦しめ',
+    toneMap[normalizeTone(params.tone)] || '無感情',
     styleMap[params.style] || '指定なし',
     flowMap[params.flow] || '指定なし',
     `途切れ:${breakMap[params.breakIntensity] || '中'}`,
@@ -226,7 +237,7 @@ function generateAndRender() {
   const text = generateLine({
     level: levelInput?.value,
     length: getActiveSegValue('length') || 'medium',
-    tone: getActiveSegValue('tone') || 'harsh',
+    tone: normalizeTone(getActiveSegValue('tone')) || 'emotionless',
     style: getActiveSegValue('style') || 'none',
     flow: getActiveSegValue('flow') || 'none',
     phrase: phraseInput?.value,
@@ -274,7 +285,7 @@ export function initUI() {
     const params = {
       level: levelInput?.value,
       length: getActiveSegValue('length') || 'medium',
-      tone: getActiveSegValue('tone') || 'harsh',
+      tone: normalizeTone(getActiveSegValue('tone')) || 'emotionless',
       style: getActiveSegValue('style') || 'none',
       flow: getActiveSegValue('flow') || 'none',
       phrase: phraseInput?.value?.trim() || '',
