@@ -103,6 +103,7 @@ function generateAndRender() {
     breakIntensity: getBreakIntensity(getActiveSegValue('phrase-break')),
     breakRules: getEnabledBreakRules(),
     seedText: seedInput?.value,
+    tone: 'harsh',
   });
 
   if (outputEl) {

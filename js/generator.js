@@ -104,6 +104,7 @@ export function generateLine({
   breakIntensity,
   breakRules,
   seedText,
+  tone,
 }) {
   const safeSeed = sanitizeInput(seedText, MAX_SEED_LEN);
   const rng = safeSeed ? mulberry32(hashSeed(safeSeed)) : Math.random;
@@ -116,7 +117,7 @@ export function generateLine({
     neutral: { harsh: 1, neutral: 2, soft: 1 },
     soft: { harsh: 1, neutral: 2, soft: 3 },
   };
-  const currentTone = 'harsh';
+  const currentTone = tone && toneWeights[tone] ? tone : 'harsh';
 
   function pickByTone(items) {
     const weights = toneWeights[currentTone] || toneWeights.neutral;
