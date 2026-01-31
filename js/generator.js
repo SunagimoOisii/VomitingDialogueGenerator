@@ -157,11 +157,11 @@ export function generateLine({
   };
   const currentStyle = styleConfig[style] ? style : 'none';
   const toneStructureBias = {
-    emotionless: { short: [55, 45], medium: [55, 45], long: [40, 45, 15] },
-    timid: { short: [70, 30], medium: [35, 65], long: [30, 35, 35] },
-    shaken: { short: [40, 60], medium: [25, 25, 50], long: [15, 70, 15] },
-    panic: { short: [35, 65], medium: [75, 25], long: [70, 20, 10] },
-    rage: { short: [30, 70], medium: [75, 25], long: [60, 25, 15] },
+    emotionless: { short: [55, 45], medium: [55, 45], long: [35, 50, 15] },
+    timid: { short: [80, 20], medium: [25, 75], long: [20, 30, 50] },
+    shaken: { short: [30, 70], medium: [15, 15, 70], long: [10, 75, 15] },
+    panic: { short: [25, 75], medium: [85, 15], long: [80, 15, 5] },
+    rage: { short: [20, 80], medium: [85, 15], long: [85, 10, 5] },
   };
 
   const ellipsisTuning = {

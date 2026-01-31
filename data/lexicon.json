@@ -83,7 +83,9 @@
       { "text": "ふ", "tone": "soft" },
       { "text": "ひ", "tone": "soft" },
       { "text": "は", "tone": "soft" },
-      { "text": "く", "tone": "soft" }
+      { "text": "く", "tone": "soft" },
+      { "text": "…ん…", "tone": "neutral" },
+      { "text": "…は…っ…", "tone": "neutral" }
     ],
     "2": [
       { "text": "…っ…っ…", "tone": "neutral" },
@@ -113,7 +115,9 @@
       { "text": "おゔぇぇ…", "tone": "intense" },
       { "text": "おゔぇ…", "tone": "intense" },
       { "text": "ゔぇ…", "tone": "intense" },
-      { "text": "ぐえ…", "tone": "harsh" }
+      { "text": "ぐえ…", "tone": "harsh" },
+      { "text": "…ん…", "tone": "neutral" },
+      { "text": "…は…", "tone": "neutral" }
     ],
     "3": [
       { "text": "…っ…っ…っ…", "tone": "harsh" },
@@ -140,7 +144,9 @@
       { "text": "おゔぇっ…", "tone": "intense" },
       { "text": "ゔぇっ…", "tone": "intense" },
       { "text": "ぐえっ…", "tone": "harsh" },
-      { "text": "げほ…", "tone": "harsh" }
+      { "text": "げほ…", "tone": "harsh" },
+      { "text": "…ぐ゛…", "tone": "harsh" },
+      { "text": "…ぐ゛…っ…", "tone": "intense" }
     ]
   },
   "cut": {
