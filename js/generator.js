@@ -105,6 +105,7 @@ export function generateLine({
   breakRules,
   seedText,
   tone,
+  flow,
   lexicon,
 }) {
   const safeSeed = sanitizeInput(seedText, MAX_SEED_LEN);
@@ -152,45 +153,114 @@ export function generateLine({
   const contVal = pickTextFromIntensity(cont);
   const cutVal = pickTextFromIntensity(cut);
   const afterVal = pickTextFromIntensity(after);
+  const extraCont = pickTextFromIntensity(cont);
+  const extraCont2 = pickTextFromIntensity(cont);
+  const extraCut = pickTextFromIntensity(cut);
+  const extraAfter = pickTextFromIntensity(after);
 
-  if (length === 'short') {
-    if (rng() < 0.5) {
-      parts.push(preVal, contVal);
+  const flowMode = flow || 'none';
+
+  function buildDefault() {
+    if (length === 'short') {
+      if (rng() < 0.5) {
+        parts.push(preVal, contVal);
+      } else {
+        parts.push(contVal, cutVal);
+      }
+    } else if (length === 'medium') {
+      if (rng() < 0.5) {
+        parts.push(preVal, contVal, cutVal);
+      } else {
+        parts.push(preVal, contVal, afterVal);
+      }
+    } else if (length === 'long') {
+      // 長は構成パターンを複数用意して揺らぎを作る。
+      const roll = rng();
+      const intenseBoost = currentTone === 'intense';
+      if (roll < 0.34) {
+        parts.push(preVal, contVal, cutVal, afterVal);
+      } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
+        parts.push(preVal, contVal, extraCont, cutVal, afterVal);
+      } else {
+        parts.push(preVal, contVal, cutVal, afterVal, extraAfter);
+      }
     } else {
-      parts.push(contVal, cutVal);
+      const roll = rng();
+      const intenseBoost = currentTone === 'intense';
+      if (roll < 0.34) {
+        parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter);
+      } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
+        parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal);
+      } else {
+        parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
+      }
     }
-  } else if (length === 'medium') {
-    if (rng() < 0.5) {
-      parts.push(preVal, contVal, cutVal);
+  }
+
+  function buildSudden() {
+    if (length === 'short') {
+      if (rng() < 0.5) {
+        parts.push(contVal, cutVal);
+      } else {
+        parts.push(contVal, afterVal);
+      }
+    } else if (length === 'medium') {
+      if (rng() < 0.5) {
+        parts.push(contVal, cutVal, afterVal);
+      } else {
+        parts.push(preVal, contVal, cutVal);
+      }
+    } else if (length === 'long') {
+      parts.push(contVal, extraCont, cutVal, afterVal);
     } else {
-      parts.push(preVal, contVal, afterVal);
+      parts.push(contVal, extraCont, cutVal, afterVal, extraAfter);
     }
-  } else if (length === 'long') {
-    const extraCont = pickTextFromIntensity(cont);
-    const extraAfter = pickTextFromIntensity(after);
-    // 長は構成パターンを複数用意して揺らぎを作る。
-    const roll = rng();
-    const intenseBoost = currentTone === 'intense';
-    if (roll < 0.34) {
-      parts.push(preVal, contVal, cutVal, afterVal);
-    } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
+  }
+
+  function buildEndure() {
+    if (length === 'short') {
+      if (rng() < 0.5) {
+        parts.push(preVal, contVal);
+      } else {
+        parts.push(preVal, cutVal);
+      }
+    } else if (length === 'medium') {
+      if (rng() < 0.5) {
+        parts.push(preVal, contVal, cutVal);
+      } else {
+        parts.push(preVal, contVal, afterVal);
+      }
+    } else if (length === 'long') {
+      parts.push(preVal, contVal, extraCut, cutVal, afterVal);
+    } else {
+      parts.push(preVal, contVal, extraCut, cutVal, afterVal, extraAfter);
+    }
+  }
+
+  function buildContinuous() {
+    if (length === 'short') {
+      parts.push(contVal, extraCont);
+    } else if (length === 'medium') {
+      if (rng() < 0.5) {
+        parts.push(preVal, contVal, extraCont);
+      } else {
+        parts.push(contVal, extraCont, cutVal);
+      }
+    } else if (length === 'long') {
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
-    } else {
-      parts.push(preVal, contVal, cutVal, afterVal, extraAfter);
-    }
-  } else {
-    const extraCont = pickTextFromIntensity(cont);
-    const extraCont2 = pickTextFromIntensity(cont);
-    const extraAfter = pickTextFromIntensity(after);
-    const roll = rng();
-    const intenseBoost = currentTone === 'intense';
-    if (roll < 0.34) {
-      parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter);
-    } else if (roll < (intenseBoost ? 0.85 : 0.68)) {
-      parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal);
     } else {
       parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
     }
+  }
+
+  if (flowMode === 'sudden') {
+    buildSudden();
+  } else if (flowMode === 'endure') {
+    buildEndure();
+  } else if (flowMode === 'continuous') {
+    buildContinuous();
+  } else {
+    buildDefault();
   }
 
   if (safePhrase) {

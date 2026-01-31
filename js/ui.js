@@ -110,6 +110,7 @@ function applyParams(params) {
   if (levelInput) levelInput.value = params.level ?? '3';
   setSegActive('length', params.length || 'medium');
   setSegActive('tone', params.tone || 'harsh');
+  setSegActive('flow', params.flow || 'none');
   if (phraseInput) phraseInput.value = params.phrase || '';
   setSegActive('phrase-mode', params.phraseMode || 'raw');
   setSegActive('phrase-break', params.breakIntensity || 'mid');
@@ -138,6 +139,12 @@ function formatParams(params) {
     long: '長',
     xlong: '超長',
   };
+  const flowMap = {
+    none: '指定なし',
+    sudden: '突然',
+    endure: '耐えて',
+    continuous: '連続',
+  };
   const breakMap = {
     weak: '弱',
     mid: '中',
@@ -154,6 +161,7 @@ function formatParams(params) {
     `Lv${params.level ?? '-'}`,
     lengthMap[params.length] || '中',
     toneMap[params.tone] || '苦しめ',
+    flowMap[params.flow] || '指定なし',
     `途切れ:${breakMap[params.breakIntensity] || '中'}`,
   ];
   const rules = params.breakRules?.length
@@ -181,6 +189,7 @@ function generateAndRender() {
     level: levelInput?.value,
     length: getActiveSegValue('length') || 'medium',
     tone: getActiveSegValue('tone') || 'harsh',
+    flow: getActiveSegValue('flow') || 'none',
     phrase: phraseInput?.value,
     phraseMode: getActiveSegValue('phrase-mode') || 'raw',
     breakIntensity: getBreakIntensity(getActiveSegValue('phrase-break')),
@@ -226,6 +235,7 @@ export function initUI() {
       level: levelInput?.value,
       length: getActiveSegValue('length') || 'medium',
       tone: getActiveSegValue('tone') || 'harsh',
+      flow: getActiveSegValue('flow') || 'none',
       phrase: phraseInput?.value?.trim() || '',
       phraseMode: getActiveSegValue('phrase-mode') || 'raw',
       breakIntensity: getActiveSegValue('phrase-break') || 'mid',

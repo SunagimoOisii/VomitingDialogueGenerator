@@ -264,6 +264,59 @@ input[type="range"] {
   line-height: 1.7;
 }
 
+.history-fold {
+  margin-top: 16px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: #ffffffc7;
+}
+
+.history-fold summary {
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.history-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-fold summary::after {
+  content: "▸";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.history-fold[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.summary-meta {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.history-fold summary:hover {
+  color: var(--ink);
+  background: #fff;
+}
+
+.history-fold summary:hover::after {
+  color: var(--ink);
+}
+
 .notice-box {
   border: 1px dashed var(--line);
   border-radius: 12px;

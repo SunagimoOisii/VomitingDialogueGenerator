@@ -12,11 +12,11 @@
   <meta property="og:image" content="https://sunagimooiisii.github.io/VomitingDialogueGenerator/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="嘔吐セリフジェネレータ（創作向けテキスト生成ツール）" />
+  <meta property="og:image:alt" content="嘔吐セリフジェネレータ(創作向けテキスト生成ツール)" />
   <meta property="og:site_name" content="VomitingDialogueGenerator" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="嘔吐セリフジェネレータ" />
-  <meta name="twitter:description" content="創作向けのテキスト生成ツール（閲覧は自己判断で）。" />
+  <meta name="twitter:description" content="創作向けテキスト生成ツール(閲覧は自己判断で)" />
   <meta name="twitter:image" content="https://sunagimooiisii.github.io/VomitingDialogueGenerator/og-image.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -46,18 +46,18 @@
           <div class="output-box">
             <p id="output">ここに生成結果を表示</p>
           </div>
-        </section>
 
-        <section class="panel history">
-          <div class="panel-head">
-            <h2>履歴</h2>
-            <div class="meta">最大50件</div>
-          </div>
-          <div class="history-actions">
-            <button id="history-clear-btn" class="btn-ghost">履歴を全削除</button>
-          </div>
-          <div id="history-empty" class="history-empty">履歴はまだありません</div>
-          <ul id="history-list" class="history-list"></ul>
+          <details class="history-fold">
+            <summary>
+              履歴
+              <span class="summary-meta">最大50件</span>
+            </summary>
+            <div class="history-actions">
+              <button id="history-clear-btn" class="btn-ghost">全削除</button>
+            </div>
+            <div id="history-empty" class="history-empty">履歴はまだありません</div>
+            <ul id="history-list" class="history-list"></ul>
+          </details>
         </section>
       </div>
 
@@ -95,11 +95,21 @@
             </div>
           </label>
 
+          <label class="field">
+            <span class="field-label">展開</span>
+            <div class="seg" data-seg="flow">
+              <button class="seg-btn is-active" data-value="none">指定なし</button>
+              <button class="seg-btn" data-value="sudden">突然</button>
+              <button class="seg-btn" data-value="endure">耐えて</button>
+              <button class="seg-btn" data-value="continuous">連続</button>
+            </div>
+          </label>
+
           <div class="phrase-block">
             <div class="phrase-head">
               <span class="field-label">フレーズ</span>
             </div>
-            <input id="phrase-input" type="text" placeholder="任意フレーズ（例: やめろ）" />
+            <input id="phrase-input" type="text" placeholder="任意フレーズ(例: やめろ)" />
             <div class="field">
               <span class="field-label">フレーズ形式</span>
               <div class="seg" data-seg="phrase-mode">
@@ -124,11 +134,11 @@
                 </label>
                 <label class="check-item">
                   <input type="checkbox" name="break-rule" value="sokuon" checked />
-                  促音（っ）
+                  促音(っ)
                 </label>
                 <label class="check-item">
                   <input type="checkbox" name="break-rule" value="choke" checked />
-                  詰まり（…っ）
+                  詰まり(…っ)
                 </label>
                 <label class="check-item">
                   <input type="checkbox" name="break-rule" value="repeat" checked />
@@ -140,7 +150,7 @@
                 </label>
               </div>
               <div class="break-examples">
-                <div class="break-examples-head">例（現在のフレーズ）</div>
+                <div class="break-examples-head">例(現在のフレーズ)</div>
                 <ul class="break-examples-list">
                   <li data-rule="cut"><span class="ex-label">末尾カット</span><span class="ex-text">-</span></li>
                   <li data-rule="sokuon"><span class="ex-label">促音</span><span class="ex-text">-</span></li>
