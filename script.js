@@ -12,6 +12,7 @@ const outputEl = document.querySelector('#output');
 const levelInput = document.querySelector('#level-input');
 const phraseInput = document.querySelector('#phrase-input');
 const seedInput = document.querySelector('#seed-input');
+const breakExampleItems = document.querySelectorAll('.break-examples-list li');
 
 const STORAGE_KEY = 'vomit-gen:skipGate';
 const HISTORY_KEY = 'vomit-gen:history';
@@ -168,7 +169,34 @@ function getBreakIntensity(value) {
   return 1;
 }
 
-function breakPhrase(text, intensity, rng) {
+function getEnabledBreakRules() {
+  const checks = document.querySelectorAll('input[name="break-rule"]');
+  const enabled = [];
+  for (const input of checks) {
+    if (input instanceof HTMLInputElement && input.checked) {
+      enabled.push(input.value);
+    }
+  }
+  return enabled.length ? enabled : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
+}
+
+function applyBreakRule(rule, head, tail) {
+  switch (rule) {
+    case 'cut':
+      return `${head}…`;
+    case 'sokuon':
+      return `${head}っ…`;
+    case 'choke':
+      return `${head}…っ`;
+    case 'repeat':
+      return `${head.slice(0, Math.max(1, Math.floor(head.length * 0.6)))}…${head}…`;
+    case 'split':
+    default:
+      return `${head}…${tail.slice(0, Math.max(1, Math.floor(tail.length * 0.5)))}…`;
+  }
+}
+
+function breakPhrase(text, intensity, rng, rules) {
   if (!text) return '';
   const cleaned = text.replace(/[A-Za-z0-9]/g, '').replace(/ー/g, '').trim();
   if (!cleaned) return '';
@@ -177,20 +205,32 @@ function breakPhrase(text, intensity, rng) {
   const head = cleaned.slice(0, baseLen);
   const tailStart = Math.max(1, Math.floor(cleaned.length * 0.5));
   const tail = cleaned.slice(tailStart);
-  const pickRule = Math.floor(rng() * 5);
+  const enabled = rules && rules.length ? rules : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
+  const rule = enabled[Math.floor(rng() * enabled.length)];
+  return applyBreakRule(rule, head, tail);
+}
 
-  switch (pickRule) {
-    case 0:
-      return `${head}…`;
-    case 1:
-      return `${head}っ…`;
-    case 2:
-      return `${head}…っ`;
-    case 3:
-      return `${head.slice(0, Math.max(1, Math.floor(head.length * 0.6)))}…${head}…`;
-    case 4:
-    default:
-      return `${head}…${tail.slice(0, Math.max(1, Math.floor(tail.length * 0.5)))}…`;
+function makeBreakExample(text, intensity, rule) {
+  if (!text) return '-';
+  const cleaned = text.replace(/[A-Za-z0-9]/g, '').replace(/ー/g, '').trim();
+  if (!cleaned) return '-';
+  const remainRate = intensity === 0 ? 0.8 : intensity === 1 ? 0.6 : 0.4;
+  const baseLen = Math.max(1, Math.floor(cleaned.length * remainRate));
+  const head = cleaned.slice(0, baseLen);
+  const tailStart = Math.max(1, Math.floor(cleaned.length * 0.5));
+  const tail = cleaned.slice(tailStart);
+  return applyBreakRule(rule, head, tail);
+}
+
+function updateBreakExamples() {
+  if (!breakExampleItems.length) return;
+  const phrase = sanitizeInput(phraseInput?.value, MAX_PHRASE_LEN);
+  const breakIntensity = getBreakIntensity(getActiveSegValue('phrase-break'));
+  for (const item of breakExampleItems) {
+    const rule = item.getAttribute('data-rule') || '';
+    const text = makeBreakExample(phrase, breakIntensity, rule);
+    const target = item.querySelector('.ex-text');
+    if (target) target.textContent = text;
   }
 }
 
@@ -203,6 +243,7 @@ function generateLine() {
   const phrase = sanitizeInput(phraseInput?.value, MAX_PHRASE_LEN);
   const phraseMode = getActiveSegValue('phrase-mode') || 'raw';
   const breakIntensity = getBreakIntensity(getActiveSegValue('phrase-break'));
+  const breakRules = getEnabledBreakRules();
 
   const pre = [
     ['うっ…', 'ん…', '…っ', 'う…', 'は…'],
@@ -246,7 +287,7 @@ function generateLine() {
 
   if (phrase) {
     const phraseVal = phraseMode === 'broken'
-      ? breakPhrase(phrase, breakIntensity, rng)
+      ? breakPhrase(phrase, breakIntensity, rng, breakRules)
       : phrase;
     if (parts.length >= 2) {
       parts.splice(1, 0, phraseVal);
@@ -314,7 +355,15 @@ for (const seg of document.querySelectorAll('.seg')) {
       sibling.classList.remove('is-active');
     }
     btn.classList.add('is-active');
+    if (btn.closest('.seg')?.getAttribute('data-seg') === 'phrase-break') {
+      updateBreakExamples();
+    }
   });
 }
 
 renderHistory();
+updateBreakExamples();
+
+phraseInput?.addEventListener('input', () => {
+  updateBreakExamples();
+});

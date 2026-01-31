@@ -91,9 +91,41 @@
                 <button class="seg-btn" data-value="strong">強</button>
               </div>
             </div>
-            <div class="phrase-placeholder">
-              <span>追加設定（将来拡張）</span>
-            </div>
+            <details class="phrase-advanced">
+              <summary>詳細設定</summary>
+              <div class="advanced-grid">
+                <label class="check-item">
+                  <input type="checkbox" name="break-rule" value="cut" checked />
+                  末尾カット
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="break-rule" value="sokuon" checked />
+                  促音（っ）
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="break-rule" value="choke" checked />
+                  詰まり（…っ）
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="break-rule" value="repeat" checked />
+                  繰り返し
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="break-rule" value="split" checked />
+                  分断
+                </label>
+              </div>
+              <div class="break-examples">
+                <div class="break-examples-head">例（現在のフレーズ）</div>
+                <ul class="break-examples-list">
+                  <li data-rule="cut"><span class="ex-label">末尾カット</span><span class="ex-text">-</span></li>
+                  <li data-rule="sokuon"><span class="ex-label">促音</span><span class="ex-text">-</span></li>
+                  <li data-rule="choke"><span class="ex-label">詰まり</span><span class="ex-text">-</span></li>
+                  <li data-rule="repeat"><span class="ex-label">繰り返し</span><span class="ex-text">-</span></li>
+                  <li data-rule="split"><span class="ex-label">分断</span><span class="ex-text">-</span></li>
+                </ul>
+              </div>
+            </details>
           </div>
 
           <label class="field">
