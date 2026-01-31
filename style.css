@@ -20,6 +20,7 @@ body {
   color: var(--ink);
   background: var(--bg);
   min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bg-grid {
