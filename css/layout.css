@@ -5,6 +5,7 @@
     linear-gradient(to right, rgba(15, 17, 17, 0.06) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(15, 17, 17, 0.06) 1px, transparent 1px);
   background-size: 80px 80px;
+  /* 目立ちすぎない強さで抽象的な奥行きを作る。 */
   opacity: 0.35;
   pointer-events: none;
 }
@@ -38,6 +39,7 @@
   margin: 0 auto;
   padding: 48px 20px 100px;
   display: grid;
+  /* セクション間の間隔は大きめに取り、操作の迷いを減らす。 */
   gap: 28px;
 }
 

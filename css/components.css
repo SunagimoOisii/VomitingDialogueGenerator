@@ -192,6 +192,7 @@ input[type="range"] {
 
 .output-actions .btn-primary,
 .output-actions .btn-ghost {
+  /* PCでは一行に収めるため折り返しを防ぐ。 */
   white-space: nowrap;
 }
 

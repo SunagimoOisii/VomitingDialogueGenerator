@@ -33,6 +33,7 @@ export function pick(rng, list) {
 export function pickFromIntensity(rng, sets, intensity) {
   const roll = rng();
   let idx = intensity;
+  // 同一強度に固定すると単調になるため、隣接強度に少し揺らす。
   if (roll < 0.15 && intensity > 0) idx = intensity - 1;
   if (roll > 0.85 && intensity < sets.length - 1) idx = intensity + 1;
   return pick(rng, sets[idx]);
@@ -71,12 +72,14 @@ export function breakPhrase(text, intensity, rng, rules) {
   if (!text) return '';
   const cleaned = text.replace(/[A-Za-z0-9]/g, '').replace(/ー/g, '').trim();
   if (!cleaned) return '';
+  // 強さに応じて残存率を変え、途切れの強度を担保する。
   const remainRate = intensity === 0 ? 0.8 : intensity === 1 ? 0.6 : 0.4;
   const baseLen = Math.max(1, Math.floor(cleaned.length * remainRate));
   const head = cleaned.slice(0, baseLen);
   const tailStart = Math.max(1, Math.floor(cleaned.length * 0.5));
   const tail = cleaned.slice(tailStart);
   const enabled = rules && rules.length ? rules : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
+  // すべてOFFでも生成が止まらないよう全候補にフォールバックする。
   const rule = enabled[Math.floor(rng() * enabled.length)];
   return applyBreakRule(rule, head, tail);
 }
@@ -141,6 +144,7 @@ export function generateLine({
     parts.push(preVal, contVal, cutVal);
   } else {
     const extraCont = pickFromIntensity(rng, cont, intensity);
+    // 長はときどき継続音を追加して尺と勢いを確保する。
     if (rng() < 0.4) {
       parts.push(preVal, contVal, extraCont, cutVal, afterVal);
     } else {

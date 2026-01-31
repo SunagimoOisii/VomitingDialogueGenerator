@@ -20,10 +20,12 @@ body {
   color: var(--ink);
   background: var(--bg);
   min-height: 100vh;
+  /* モバイルでのタップハイライトを無効化し、抽象的な印象を維持する。 */
   -webkit-tap-highlight-color: transparent;
 }
 
 .page {
+  /* 出力テキスト以外の選択を防ぎ、操作に集中させる。 */
   user-select: none;
 }
 

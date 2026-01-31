@@ -8,6 +8,7 @@ export function loadGatePreference() {
   try {
     return localStorage.getItem(STORAGE_KEY) === '1';
   } catch {
+    // 保存不可な環境でも動作を止めないため、失敗時は既定値に戻す。
     return false;
   }
 }
@@ -28,6 +29,7 @@ export function loadHistory() {
     if (!Array.isArray(parsed)) return [];
     return parsed.filter((item) => item && typeof item.text === 'string');
   } catch {
+    // 破損データがあっても画面を壊さないよう空配列扱いにする。
     return [];
   }
 }
@@ -47,6 +49,7 @@ export function addHistoryItem(text) {
   };
   const list = loadHistory();
   list.unshift(entry);
+  // 上限超過は古い順に切り捨てる。
   const trimmed = list.slice(0, MAX_HISTORY);
   saveHistory(trimmed);
   return trimmed;

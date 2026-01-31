@@ -44,6 +44,7 @@ function getEnabledBreakRules() {
       enabled.push(input.value);
     }
   }
+  // 全OFFでも例が生成できるよう既定ルールに戻す。
   return enabled.length ? enabled : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
 }
 
@@ -59,6 +60,7 @@ function renderHistory(list = loadHistory()) {
   if (!historyList || !historyEmpty) return;
   historyList.innerHTML = '';
   if (list.length === 0) {
+    // 空表示は文言で明示してスクロールを空にしない。
     historyEmpty.style.display = 'block';
     return;
   }
