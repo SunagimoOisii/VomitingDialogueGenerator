@@ -30,6 +30,9 @@
       <div class="hero-left">
         <h1>嘔吐セリフジェネレータ</h1>
       </div>
+      <div class="hero-right">
+        <button id="analytics-btn" class="btn-ghost btn-small">Analytics</button>
+      </div>
     </header>
 
     <div class="layout">
@@ -179,6 +182,25 @@
       </label>
       <div class="gate-actions">
         <button class="btn-primary">同意して進む</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="analytics-modal" role="dialog" aria-modal="true">
+    <div class="analytics-card">
+      <div class="analytics-head">
+        <p class="analytics-title">Analytics</p>
+      </div>
+      <p class="analytics-body">
+        自前イベント計測（生成／コピー／復元／履歴操作／トーン切替）の当日分を表示します。
+      </p>
+      <div class="analytics-chart">
+        <div class="chart-head">
+          <span>今日のイベント</span>
+          <span id="analytics-day">--</span>
+        </div>
+        <div id="analytics-empty" class="history-empty">データがありません</div>
+        <div id="analytics-bars" class="chart-bars"></div>
       </div>
     </div>
   </section>
