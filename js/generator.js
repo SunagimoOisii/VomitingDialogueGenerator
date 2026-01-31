@@ -255,6 +255,7 @@ export function generateLine({
   const after = [lex.after['1'], lex.after['2'], lex.after['3']];
 
   const parts = [];
+  const flowMode = flow || 'none';
   const strictRepeat = length === 'xlong' || flowMode === 'sudden';
   const preVal = pickTextFromIntensity(pre);
   const contVal = pickTextFromIntensityAvoid(cont, preVal, strictRepeat);
@@ -264,8 +265,6 @@ export function generateLine({
   const extraCont2 = pickTextFromIntensityAvoid(cont, extraCont, strictRepeat);
   const extraCut = pickTextFromIntensityAvoid(cut, cutVal, strictRepeat);
   const extraAfter = pickAfterFromIntensityAvoid(after, afterVal, strictRepeat);
-
-  const flowMode = flow || 'none';
 
   function dropLeadingEllipsis(text) {
     return text.replace(/^…+/, '');
