@@ -128,28 +128,58 @@
                 </div>
               </div>
               <details class="phrase-advanced">
-                <summary>途切れルール設定欄</summary>
+                <summary>途切れルール設定(無効有効と重み)</summary>
                 <div class="advanced-grid">
-                  <label class="check-item">
-                    <input type="checkbox" name="break-rule" value="cut" checked />
-                    末尾カット
-                  </label>
-                  <label class="check-item">
-                    <input type="checkbox" name="break-rule" value="sokuon" checked />
-                    促音(っ)
-                  </label>
-                  <label class="check-item">
-                    <input type="checkbox" name="break-rule" value="choke" checked />
-                    詰まり(…っ)
-                  </label>
-                  <label class="check-item">
-                    <input type="checkbox" name="break-rule" value="repeat" checked />
-                    繰り返し
-                  </label>
-                  <label class="check-item">
-                    <input type="checkbox" name="break-rule" value="split" checked />
-                    分断
-                  </label>
+                  <div class="rule-item">
+                    <label class="check-item">
+                      <input type="checkbox" name="break-rule" value="cut" checked />
+                      末尾カット
+                    </label>
+                    <div class="rule-weight">
+                      <input type="range" min="1" max="5" value="3" data-rule="cut" class="rule-weight-slider" />
+                      <span class="rule-weight-value">3</span>
+                    </div>
+                  </div>
+                  <div class="rule-item">
+                    <label class="check-item">
+                      <input type="checkbox" name="break-rule" value="sokuon" checked />
+                      促音(っ)
+                    </label>
+                    <div class="rule-weight">
+                      <input type="range" min="1" max="5" value="3" data-rule="sokuon" class="rule-weight-slider" />
+                      <span class="rule-weight-value">3</span>
+                    </div>
+                  </div>
+                  <div class="rule-item">
+                    <label class="check-item">
+                      <input type="checkbox" name="break-rule" value="choke" checked />
+                      詰まり(…っ)
+                    </label>
+                    <div class="rule-weight">
+                      <input type="range" min="1" max="5" value="3" data-rule="choke" class="rule-weight-slider" />
+                      <span class="rule-weight-value">3</span>
+                    </div>
+                  </div>
+                  <div class="rule-item">
+                    <label class="check-item">
+                      <input type="checkbox" name="break-rule" value="repeat" checked />
+                      繰り返し
+                    </label>
+                    <div class="rule-weight">
+                      <input type="range" min="1" max="5" value="3" data-rule="repeat" class="rule-weight-slider" />
+                      <span class="rule-weight-value">3</span>
+                    </div>
+                  </div>
+                  <div class="rule-item">
+                    <label class="check-item">
+                      <input type="checkbox" name="break-rule" value="split" checked />
+                      分断
+                    </label>
+                    <div class="rule-weight">
+                      <input type="range" min="1" max="5" value="3" data-rule="split" class="rule-weight-slider" />
+                      <span class="rule-weight-value">3</span>
+                    </div>
+                  </div>
                 </div>
                 <div class="break-examples">
                   <div class="break-examples-head">例(現在のフレーズ)</div>

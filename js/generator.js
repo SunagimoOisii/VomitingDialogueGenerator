@@ -68,7 +68,7 @@ export function applyBreakRule(rule, head, tail) {
   }
 }
 
-export function breakPhrase(text, intensity, rng, rules) {
+export function breakPhrase(text, intensity, rng, rules, weights) {
   if (!text) return '';
   const cleaned = text.replace(/[A-Za-z0-9]/g, '').replace(/ー/g, '').trim();
   if (!cleaned) return '';
@@ -80,7 +80,24 @@ export function breakPhrase(text, intensity, rng, rules) {
   const tail = cleaned.slice(tailStart);
   const enabled = rules && rules.length ? rules : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
   // すべてOFFでも生成が止まらないよう全候補にフォールバックする。
-  const rule = enabled[Math.floor(rng() * enabled.length)];
+  let total = 0;
+  for (const key of enabled) {
+    const w = Math.max(1, weights?.[key] ?? 1);
+    total += w;
+  }
+  let pickPoint = rng() * (total || enabled.length);
+  let rule = enabled[enabled.length - 1];
+  if (!total) {
+    rule = enabled[Math.floor(rng() * enabled.length)];
+  } else {
+    for (const key of enabled) {
+      pickPoint -= Math.max(1, weights?.[key] ?? 1);
+      if (pickPoint <= 0) {
+        rule = key;
+        break;
+      }
+    }
+  }
   return applyBreakRule(rule, head, tail);
 }
 
@@ -103,6 +120,7 @@ export function generateLine({
   phraseMode,
   breakIntensity,
   breakRules,
+  breakWeights,
   seedText,
   tone,
   flow,
@@ -265,7 +283,7 @@ export function generateLine({
 
   if (safePhrase) {
     const phraseVal = phraseMode === 'broken'
-      ? breakPhrase(safePhrase, breakIntensity, rng, breakRules)
+      ? breakPhrase(safePhrase, breakIntensity, rng, breakRules, breakWeights)
       : safePhrase;
     if (parts.length >= 2) {
       parts.splice(1, 0, phraseVal);

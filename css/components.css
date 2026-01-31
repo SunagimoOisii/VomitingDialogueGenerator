@@ -156,10 +156,32 @@
   font-size: 13px;
 }
 
+.rule-item {
+  display: grid;
+  gap: 6px;
+}
+
 .check-item {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.rule-weight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rule-weight input[type="range"] {
+  accent-color: var(--accent);
+}
+
+.rule-weight-value {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 14px;
+  text-align: right;
 }
 
 .break-examples {

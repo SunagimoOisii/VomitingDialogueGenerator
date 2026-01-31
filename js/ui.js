@@ -50,6 +50,24 @@ function getEnabledBreakRules() {
   return enabled.length ? enabled : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
 }
 
+function getBreakRuleWeights() {
+  const sliders = document.querySelectorAll('.rule-weight-slider');
+  const weights = {};
+  for (const slider of sliders) {
+    if (slider instanceof HTMLInputElement) {
+      const key = slider.dataset.rule;
+      if (key) weights[key] = Number(slider.value) || 1;
+    }
+  }
+  return weights;
+}
+
+function syncWeightLabel(target) {
+  const wrap = target?.closest('.rule-weight');
+  const label = wrap?.querySelector('.rule-weight-value');
+  if (label) label.textContent = target.value;
+}
+
 function showGate() {
   gate?.classList.add('is-visible');
 }
@@ -120,6 +138,18 @@ function applyParams(params) {
   for (const input of checks) {
     if (input instanceof HTMLInputElement) {
       input.checked = enabled.has(input.value);
+    }
+  }
+  const sliders = document.querySelectorAll('.rule-weight-slider');
+  for (const slider of sliders) {
+    if (slider instanceof HTMLInputElement) {
+      const key = slider.dataset.rule;
+      if (!key) continue;
+      const value = params.breakWeights?.[key];
+      if (typeof value === 'number') {
+        slider.value = String(value);
+        syncWeightLabel(slider);
+      }
     }
   }
   updateBreakExamples();
@@ -194,6 +224,7 @@ function generateAndRender() {
     phraseMode: getActiveSegValue('phrase-mode') || 'raw',
     breakIntensity: getBreakIntensity(getActiveSegValue('phrase-break')),
     breakRules: getEnabledBreakRules(),
+    breakWeights: getBreakRuleWeights(),
     seedText: seedInput?.value,
     lexicon,
   });
@@ -240,6 +271,7 @@ export function initUI() {
       phraseMode: getActiveSegValue('phrase-mode') || 'raw',
       breakIntensity: getActiveSegValue('phrase-break') || 'mid',
       breakRules: getEnabledBreakRules(),
+      breakWeights: getBreakRuleWeights(),
       seedText: seedInput?.value?.trim() || '',
     };
     const next = addHistoryItem({ text, params });
@@ -278,6 +310,13 @@ export function initUI() {
   phraseInput?.addEventListener('input', () => {
     updateBreakExamples();
   });
+
+  for (const slider of document.querySelectorAll('.rule-weight-slider')) {
+    slider.addEventListener('input', (event) => {
+      if (!(event.target instanceof HTMLInputElement)) return;
+      syncWeightLabel(event.target);
+    });
+  }
 
   renderHistory();
   updateBreakExamples();
