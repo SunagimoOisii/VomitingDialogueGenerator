@@ -141,6 +141,14 @@ function pick(rng, list) {
   return list[Math.floor(rng() * list.length)];
 }
 
+function pickFromIntensity(rng, sets, intensity) {
+  const roll = rng();
+  let idx = intensity;
+  if (roll < 0.15 && intensity > 0) idx = intensity - 1;
+  if (roll > 0.85 && intensity < sets.length - 1) idx = intensity + 1;
+  return pick(rng, sets[idx]);
+}
+
 function getActiveSegValue(name) {
   const seg = document.querySelector(`.seg[data-seg="${name}"]`);
   const active = seg?.querySelector('.seg-btn.is-active');
@@ -218,17 +226,22 @@ function generateLine() {
   ];
 
   const parts = [];
-  const preVal = pick(rng, pre[intensity]);
-  const contVal = pick(rng, cont[intensity]);
-  const cutVal = pick(rng, cut[intensity]);
-  const afterVal = pick(rng, after[intensity]);
+  const preVal = pickFromIntensity(rng, pre, intensity);
+  const contVal = pickFromIntensity(rng, cont, intensity);
+  const cutVal = pickFromIntensity(rng, cut, intensity);
+  const afterVal = pickFromIntensity(rng, after, intensity);
 
   if (length === 'short') {
     parts.push(preVal, contVal);
   } else if (length === 'medium') {
     parts.push(preVal, contVal, cutVal);
   } else {
-    parts.push(preVal, contVal, cutVal, afterVal);
+    const extraCont = pickFromIntensity(rng, cont, intensity);
+    if (rng() < 0.4) {
+      parts.push(preVal, contVal, extraCont, cutVal, afterVal);
+    } else {
+      parts.push(preVal, contVal, cutVal, afterVal);
+    }
   }
 
   if (phrase) {
