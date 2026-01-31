@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>嘔吐セリフジェネレータ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <main class="page">
+    <header class="hero">
+      <div class="hero-left">
+        <p class="eyebrow">VOMIT LINE GENERATOR</p>
+        <h1>嘔吐セリフ<br />ジェネレータ</h1>
+        <p class="subtitle">抽象・無機質なUIで、入力と出力の操作性を最優先に。</p>
+        <div class="hero-meta">
+          <span class="meta-pill">保存: ローカル</span>
+          <span class="meta-pill">履歴: 50件</span>
+          <span class="meta-pill">警告: 同意必須</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <div class="stack">
+        <section class="panel output">
+          <div class="panel-head">
+            <h2>出力</h2>
+            <div class="meta">text only</div>
+          </div>
+          <div class="primary-actions">
+            <button id="generate-btn" class="btn-primary">今すぐ生成</button>
+            <button class="btn-ghost">履歴を全削除</button>
+          </div>
+          <div class="output-box">
+            <p id="output">うっ… ん…っ… かはっ… はぁ…</p>
+          </div>
+          <div class="panel-actions">
+            <button class="btn-ghost">コピー</button>
+            <button class="btn-ghost">履歴に追加</button>
+          </div>
+        </section>
+
+        <section class="panel history">
+          <div class="panel-head">
+            <h2>履歴</h2>
+            <div class="meta">最大50件</div>
+          </div>
+          <ul class="history-list">
+            <li>
+              <div class="history-text">うっ… ん…っ… かはっ…</div>
+              <button class="mini">削除</button>
+            </li>
+            <li>
+              <div class="history-text">…っ…こっ… かはっ… はぁ…</div>
+              <button class="mini">削除</button>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>操作</h2>
+          <div class="meta">入力パラメータ</div>
+        </div>
+
+        <div class="controls">
+          <label class="field">
+            <span class="field-label">吐き気レベル</span>
+            <input id="level-input" type="range" min="1" max="5" value="3" />
+            <div class="ticks">
+              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            </div>
+          </label>
+
+          <label class="field">
+            <span class="field-label">文章量</span>
+            <div class="seg" data-seg="length">
+              <button class="seg-btn is-active" data-value="short">短</button>
+              <button class="seg-btn" data-value="medium">中</button>
+              <button class="seg-btn" data-value="long">長</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span class="field-label">フレーズ</span>
+            <input id="phrase-input" type="text" placeholder="任意フレーズ（例: やめろ）" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">フレーズ形式</span>
+            <div class="seg" data-seg="phrase-mode">
+              <button class="seg-btn is-active" data-value="raw">そのまま</button>
+              <button class="seg-btn" data-value="broken">途切れ</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span class="field-label">シード</span>
+            <input id="seed-input" type="text" placeholder="未指定ならランダム" />
+          </label>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section class="gate is-visible" aria-modal="true" role="dialog">
+    <div class="gate-card">
+      <p class="gate-title">閲覧注意</p>
+      <p class="gate-body">
+        このページは嘔吐表現を含みます。創作表現です。<br />
+        不快に感じた場合は閲覧を中止してください。
+      </p>
+      <label class="gate-toggle">
+        <input type="checkbox" />
+        次回から表示しない
+      </label>
+      <div class="gate-actions">
+        <button class="btn-primary">同意して進む</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
