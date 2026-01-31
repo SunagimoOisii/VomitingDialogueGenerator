@@ -29,6 +29,7 @@ const outputEl = document.querySelector('#output');
 const levelInput = document.querySelector('#level-input');
 const phraseInput = document.querySelector('#phrase-input');
 const seedInput = document.querySelector('#seed-input');
+const ellipsisToggle = document.querySelector('#ellipsis-toggle');
 const breakExampleItems = document.querySelectorAll('.break-examples-list li');
 let lexicon = null;
 
@@ -140,6 +141,7 @@ function applyParams(params) {
   setSegActive('tone', normalizeTone(params.tone) || 'emotionless');
   setSegActive('style', params.style || 'none');
   setSegActive('flow', params.flow || 'none');
+  if (ellipsisToggle) ellipsisToggle.checked = !!params.reduceEllipsis;
   if (phraseInput) phraseInput.value = params.phrase || '';
   setSegActive('phrase-mode', params.phraseMode || 'raw');
   setSegActive('phrase-break', params.breakIntensity || 'mid');
@@ -213,12 +215,13 @@ function formatParams(params) {
     flowMap[params.flow] || '指定なし',
     `途切れ:${breakMap[params.breakIntensity] || '中'}`,
   ];
+  const ellipsis = params.reduceEllipsis ? '省略記号:少なめ' : '';
   const rules = params.breakRules?.length
     ? `ルール:${params.breakRules.map((rule) => ruleMap[rule] || rule).join(',')}`
     : '';
   const phrase = params.phrase ? `フレーズ:${params.phrase}` : '';
   const seed = params.seedText ? `シード:${params.seedText}` : '';
-  return [...base, rules, phrase, seed].filter(Boolean).join('・');
+  return [...base, ellipsis, rules, phrase, seed].filter(Boolean).join('・');
 }
 
 function updateBreakExamples() {
@@ -246,6 +249,7 @@ function generateAndRender() {
     breakRules: getEnabledBreakRules(),
     breakWeights: getBreakRuleWeights(),
     seedText: seedInput?.value,
+    reduceEllipsis: !!ellipsisToggle?.checked,
     lexicon,
   });
 
@@ -294,6 +298,7 @@ export function initUI() {
       breakRules: getEnabledBreakRules(),
       breakWeights: getBreakRuleWeights(),
       seedText: seedInput?.value?.trim() || '',
+      reduceEllipsis: !!ellipsisToggle?.checked,
     };
     const next = addHistoryItem({ text, params });
     renderHistory(next);

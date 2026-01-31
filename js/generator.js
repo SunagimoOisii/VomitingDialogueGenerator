@@ -125,6 +125,7 @@ export function generateLine({
   tone,
   style,
   flow,
+  reduceEllipsis,
   lexicon,
 }) {
   const toneAlias = {
@@ -162,6 +163,29 @@ export function generateLine({
     panic: { short: [35, 65], medium: [75, 25], long: [70, 20, 10] },
     rage: { short: [30, 70], medium: [75, 25], long: [60, 25, 15] },
   };
+
+  const ellipsisTuning = {
+    emotionless: { after: 0.45, cut: 0.45, compress: 0.7 },
+    timid: { after: 0.5, cut: 0.45, compress: 0.7 },
+    shaken: { after: 0.3, cut: 0.25, compress: 0.55 },
+    panic: { after: 0.25, cut: 0.2, compress: 0.5 },
+    rage: { after: 0.2, cut: 0.15, compress: 0.45 },
+  };
+
+  function clampRate(value, min = 0, max = 0.9) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function getEllipsisRates() {
+    const base = ellipsisTuning[currentTone] || ellipsisTuning.emotionless;
+    const boost = reduceEllipsis ? 0.15 : 0;
+    const compressBoost = reduceEllipsis ? 0.1 : 0;
+    return {
+      after: clampRate(base.after + boost),
+      cut: clampRate(base.cut + boost),
+      compress: clampRate(base.compress + compressBoost),
+    };
+  }
 
   function pickByTone(items) {
     const weights = toneWeights[currentTone] || toneWeights.emotionless;
@@ -227,6 +251,14 @@ export function generateLine({
     return items[items.length - 1].text;
   }
 
+  function stripEllipsis(text) {
+    return text.replace(/…+/g, '');
+  }
+
+  function compressEllipsis(text) {
+    return text.replace(/…{2,}/g, '…');
+  }
+
   function pickTextFromIntensity(sets) {
     const cfg = styleConfig[currentStyle];
     const bucket = pickFromIntensity(rng, sets, intensity, cfg.jitterLow, cfg.jitterHigh);
@@ -239,6 +271,18 @@ export function generateLine({
     return pickByToneAvoid(bucket, prevText, strict);
   }
 
+  function pickCutFromIntensityAvoid(sets, prevText, strict) {
+    const picked = pickTextFromIntensityAvoid(sets, prevText, strict);
+    const rates = getEllipsisRates();
+    if (rng() < rates.cut) {
+      return stripEllipsis(picked);
+    }
+    if (rng() < rates.compress) {
+      return compressEllipsis(picked);
+    }
+    return picked;
+  }
+
   function pickAfterFromIntensity(sets) {
     const cfg = styleConfig[currentStyle];
     const bucket = pickFromIntensity(rng, sets, intensity, cfg.jitterLow, cfg.jitterHigh);
@@ -249,7 +293,9 @@ export function generateLine({
       return 0.85;
     };
     // 余韻は短めを出やすくして間延びを抑える。
-    return pickByToneWithBias(bucket, biasFn);
+    const picked = pickByToneWithBias(bucket, biasFn);
+    const rates = getEllipsisRates();
+    return rng() < rates.after ? stripEllipsis(picked) : picked;
   }
 
   function pickAfterFromIntensityAvoid(sets, prevText, strict) {
@@ -269,7 +315,9 @@ export function generateLine({
       return true;
     });
     const pool = filtered.length ? filtered : bucket;
-    return pickByToneWithBias(pool, biasFn);
+    const picked = pickByToneWithBias(pool, biasFn);
+    const rates = getEllipsisRates();
+    return rng() < rates.after ? stripEllipsis(picked) : picked;
   }
 
   function normalizeWeights(weights) {
@@ -318,7 +366,7 @@ export function generateLine({
   const strictRepeat = length === 'xlong' || flowMode === 'sudden';
   const preVal = pickTextFromIntensity(pre);
   const contVal = pickTextFromIntensityAvoid(cont, preVal, strictRepeat);
-  const cutVal = pickTextFromIntensityAvoid(cut, contVal, strictRepeat);
+  const cutVal = pickCutFromIntensityAvoid(cut, contVal, strictRepeat);
   const afterVal = pickAfterFromIntensityAvoid(after, cutVal, strictRepeat);
   const extraCont = pickTextFromIntensityAvoid(cont, contVal, strictRepeat);
   const extraCont2 = pickTextFromIntensityAvoid(cont, extraCont, strictRepeat);
