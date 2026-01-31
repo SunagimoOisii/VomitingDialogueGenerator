@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analytics Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-left">
+        <h1>Analytics Dashboard</h1>
+        <p class="hero-warning">自前計測（匿名・最小限）</p>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>今日のイベント</h2>
+        <div class="meta" id="day-label">--</div>
+      </div>
+      <div id="stats-empty" class="history-empty">データがありません</div>
+      <ul id="stats-list" class="history-list"></ul>
+      <p class="notice-box">
+        このページは自前のイベント計測のみを表示します。ページビューなどの詳細はCloudflareの
+        Web Analyticsダッシュボードで確認してください。
+      </p>
+    </section>
+  </main>
+
+  <script type="module">
+    const STATS_URL = 'https://vom-analytics.ryuryu57057.workers.dev/stats'; // 例: https://your-worker.your-subdomain.workers.dev/stats
+
+    const list = document.querySelector('#stats-list');
+    const empty = document.querySelector('#stats-empty');
+    const dayLabel = document.querySelector('#day-label');
+
+    async function loadStats() {
+      if (!STATS_URL) {
+        empty.textContent = 'STATS_URL を設定してください';
+        return;
+      }
+      try {
+        const res = await fetch(STATS_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('fetch failed');
+        const data = await res.json();
+        dayLabel.textContent = data.day || '--';
+        const entries = Object.entries(data.stats || {});
+        list.innerHTML = '';
+        if (!entries.length) {
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+        for (const [key, value] of entries) {
+          const li = document.createElement('li');
+          const text = document.createElement('div');
+          text.className = 'history-text';
+          text.textContent = key;
+          const meta = document.createElement('div');
+          meta.className = 'history-meta';
+          meta.textContent = `count: ${value}`;
+          li.append(text, meta);
+          list.append(li);
+        }
+      } catch {
+        empty.textContent = '取得に失敗しました';
+      }
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>
