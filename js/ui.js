@@ -70,6 +70,9 @@ function renderHistory(list = loadHistory()) {
     const text = document.createElement('div');
     text.className = 'history-text';
     text.textContent = item.text;
+    const meta = document.createElement('div');
+    meta.className = 'history-meta';
+    meta.textContent = formatParams(item.params);
     const del = document.createElement('button');
     del.className = 'mini';
     del.textContent = '削除';
@@ -77,9 +80,48 @@ function renderHistory(list = loadHistory()) {
       const next = removeHistoryItem(item.id);
       renderHistory(next);
     });
-    li.append(text, del);
+    li.append(text, meta, del);
     historyList.append(li);
   }
+}
+
+function formatParams(params) {
+  if (!params) return 'パラメータ未記録';
+  const toneMap = {
+    harsh: '苦しめ',
+    soft: '弱め',
+    neutral: '淡々',
+    intense: '追い込み',
+  };
+  const lengthMap = {
+    short: '短',
+    medium: '中',
+    long: '長',
+  };
+  const breakMap = {
+    weak: '弱',
+    mid: '中',
+    strong: '強',
+  };
+  const ruleMap = {
+    cut: '末尾カット',
+    sokuon: '促音',
+    choke: '詰まり',
+    repeat: '繰り返し',
+    split: '分断',
+  };
+  const base = [
+    `Lv${params.level ?? '-'}`,
+    lengthMap[params.length] || '中',
+    toneMap[params.tone] || '苦しめ',
+    `途切れ:${breakMap[params.breakIntensity] || '中'}`,
+  ];
+  const rules = params.breakRules?.length
+    ? `ルール:${params.breakRules.map((rule) => ruleMap[rule] || rule).join(',')}`
+    : '';
+  const phrase = params.phrase ? `フレーズ:${params.phrase}` : '';
+  const seed = params.seedText ? `シード:${params.seedText}` : '';
+  return [...base, rules, phrase, seed].filter(Boolean).join('・');
 }
 
 function updateBreakExamples() {
@@ -135,7 +177,17 @@ export function initUI() {
   historyAddBtn?.addEventListener('click', () => {
     const text = outputEl?.textContent?.trim();
     if (!text) return;
-    const next = addHistoryItem(text);
+    const params = {
+      level: levelInput?.value,
+      length: getActiveSegValue('length') || 'medium',
+      tone: getActiveSegValue('tone') || 'harsh',
+      phrase: phraseInput?.value?.trim() || '',
+      phraseMode: getActiveSegValue('phrase-mode') || 'raw',
+      breakIntensity: getActiveSegValue('phrase-break') || 'mid',
+      breakRules: getEnabledBreakRules(),
+      seedText: seedInput?.value?.trim() || '',
+    };
+    const next = addHistoryItem({ text, params });
     renderHistory(next);
   });
 

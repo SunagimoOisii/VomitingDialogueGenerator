@@ -250,8 +250,11 @@ input[type="range"] {
 .history-list li {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: center;
+  grid-template-areas:
+    "text action"
+    "meta action";
+  gap: 6px 12px;
+  align-items: start;
   border: 1px solid var(--line);
   padding: 10px 12px;
   border-radius: 12px;
@@ -260,6 +263,14 @@ input[type="range"] {
 
 .history-text {
   font-size: 15px;
+  grid-area: text;
+}
+
+.history-meta {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+  grid-area: meta;
 }
 
 .mini {
@@ -267,6 +278,7 @@ input[type="range"] {
   background: transparent;
   padding: 6px 10px;
   font-size: 11px;
+  grid-area: action;
 }
 
 .meta {

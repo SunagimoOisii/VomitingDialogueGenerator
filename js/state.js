@@ -42,10 +42,11 @@ export function saveHistory(list) {
   }
 }
 
-export function addHistoryItem(text) {
+export function addHistoryItem({ text, params }) {
   const entry = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     text,
+    params,
   };
   const list = loadHistory();
   list.unshift(entry);
