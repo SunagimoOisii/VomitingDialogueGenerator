@@ -30,22 +30,7 @@ const levelInput = document.querySelector('#level-input');
 const phraseInput = document.querySelector('#phrase-input');
 const seedInput = document.querySelector('#seed-input');
 const breakExampleItems = document.querySelectorAll('.break-examples-list li');
-const analyticsBtn = document.querySelector('#analytics-btn');
-const analyticsModal = document.querySelector('.analytics-modal');
 let lexicon = null;
-const ANALYTICS_ENDPOINT = 'https://vom-analytics.ryuryu57057.workers.dev/event';
-
-function sendAnalytics(eventName) {
-  if (!ANALYTICS_ENDPOINT) return;
-  fetch(ANALYTICS_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ event: eventName, ts: Date.now() }),
-    keepalive: true,
-  }).catch(() => {});
-}
 
 function getActiveSegValue(name) {
   const seg = document.querySelector(`.seg[data-seg="${name}"]`);
@@ -98,7 +83,6 @@ function renderHistory(list = loadHistory()) {
     restore.addEventListener('click', () => {
       applyParams(item.params);
       generateAndRender();
-      sendAnalytics('restore_click');
     });
     const del = document.createElement('button');
     del.className = 'mini';
@@ -232,7 +216,6 @@ export function initUI() {
 
   generateBtn?.addEventListener('click', () => {
     generateAndRender();
-    sendAnalytics('generate_click');
   });
 
   historyAddBtn?.addEventListener('click', () => {
@@ -250,13 +233,11 @@ export function initUI() {
     };
     const next = addHistoryItem({ text, params });
     renderHistory(next);
-    sendAnalytics('history_add');
   });
 
   historyClearBtn?.addEventListener('click', () => {
     const next = clearHistory();
     renderHistory(next);
-    sendAnalytics('history_clear');
   });
 
   copyBtn?.addEventListener('click', async () => {
@@ -264,7 +245,6 @@ export function initUI() {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      sendAnalytics('copy_click');
     } catch {
       // ignore clipboard errors
     }
@@ -281,9 +261,6 @@ export function initUI() {
       if (btn.closest('.seg')?.getAttribute('data-seg') === 'phrase-break') {
         updateBreakExamples();
       }
-      if (btn.closest('.seg')?.getAttribute('data-seg') === 'tone') {
-        sendAnalytics('tone_change');
-      }
     });
   }
 
@@ -294,13 +271,4 @@ export function initUI() {
   renderHistory();
   updateBreakExamples();
 
-  analyticsBtn?.addEventListener('click', () => {
-    analyticsModal?.classList.add('is-visible');
-  });
-
-  analyticsModal?.addEventListener('click', (event) => {
-    if (event.target === analyticsModal) {
-      analyticsModal.classList.remove('is-visible');
-    }
-  });
 }

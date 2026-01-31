@@ -57,14 +57,8 @@
 
 .hero {
   display: grid;
-  grid-template-columns: 1fr auto;
   gap: 24px;
   align-items: center;
-}
-
-.hero-right {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .eyebrow {
