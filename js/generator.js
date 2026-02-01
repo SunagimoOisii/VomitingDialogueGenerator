@@ -254,6 +254,16 @@ export function generateLine({
   function getToneWeight(item) {
     const weights = toneWeights[currentTone] || toneWeights.emotionless;
     const base = weights[item.tone] || 1;
+    const tonePreference = {
+      emotionless: ['neutral'],
+      timid: ['soft'],
+      shaken: ['intense'],
+      panic: ['intense', 'harsh'],
+      rage: ['harsh'],
+    };
+    const preferred = tonePreference[currentTone] || [];
+    const preferenceBoost = preferred.includes(item.tone) ? 1.25 : 1;
+    const neutralPenalty = currentTone !== 'emotionless' && item.tone === 'neutral' ? 0.4 : 1;
     const levelBias = {
       0: { harsh: 0.6, intense: 0.7, neutral: 1, soft: 1.1 },
       1: { harsh: 0.85, intense: 0.95, neutral: 1, soft: 1.05 },
@@ -268,7 +278,11 @@ export function generateLine({
       flat: 1,
       none: 1,
     };
-    return base * (bias[item.tone] || 1) * (styleBias[currentStyle] || 1);
+    return base
+      * (bias[item.tone] || 1)
+      * (styleBias[currentStyle] || 1)
+      * preferenceBoost
+      * neutralPenalty;
   }
 
   function pickByToneAvoid(items, prevText, strict) {
@@ -482,10 +496,40 @@ export function generateLine({
     return '';
   }
 
-  const pre = [lex.pre['1'], lex.pre['2'], lex.pre['3']];
-  const cont = [lex.cont['1'], lex.cont['2'], lex.cont['3']];
-  const cut = [lex.cut['1'], lex.cut['2'], lex.cut['3']];
-  const after = [lex.after['1'], lex.after['2'], lex.after['3']];
+  let pre = [lex.pre['1'], lex.pre['2'], lex.pre['3']];
+  let cont = [lex.cont['1'], lex.cont['2'], lex.cont['3']];
+  let cut = [lex.cut['1'], lex.cut['2'], lex.cut['3']];
+  let after = [lex.after['1'], lex.after['2'], lex.after['3']];
+
+  function sampleList(list, count) {
+    const pool = [...list];
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(rng() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, count);
+  }
+
+  function limitNeutral(items, maxRatio) {
+    const neutral = items.filter((item) => item.tone === 'neutral');
+    const other = items.filter((item) => item.tone !== 'neutral');
+    const maxAllowed = Math.max(1, Math.floor(items.length * maxRatio));
+    if (neutral.length <= maxAllowed) return items;
+    const picked = sampleList(neutral, maxAllowed);
+    return [...other, ...picked];
+  }
+
+  function applyNeutralLimit(sets, ratio) {
+    return sets.map((bucket) => limitNeutral(bucket, ratio));
+  }
+
+  if (currentTone !== 'emotionless') {
+    const neutralCap = 0.35;
+    pre = applyNeutralLimit(pre, neutralCap);
+    cont = applyNeutralLimit(cont, neutralCap);
+    cut = applyNeutralLimit(cut, neutralCap);
+    after = applyNeutralLimit(after, neutralCap);
+  }
 
   function filterSetBy(setGroup, predicate) {
     return setGroup.map((bucket) => bucket.filter(predicate));
