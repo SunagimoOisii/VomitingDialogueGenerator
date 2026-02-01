@@ -623,14 +623,45 @@ export function generateLine({
     patterns[patterns.length - 1].apply();
   }
 
+  function pickPatternGroup(groups) {
+    const total = groups.reduce((sum, item) => sum + item.weight, 0);
+    let r = rng() * total;
+    for (const item of groups) {
+      r -= item.weight;
+      if (r <= 0) {
+        pickPattern(item.patterns);
+        return;
+      }
+    }
+    pickPattern(groups[groups.length - 1].patterns);
+  }
+
+  function mixFlowBias() {
+    if (flowMode !== 'none') return null;
+    const roll = rng();
+    if (roll < 0.18) return 'sudden';
+    if (roll < 0.36) return 'endure';
+    if (roll < 0.56) return 'continuous';
+    return null;
+  }
+
   function buildDefault() {
     const cfg = styleConfig[currentStyle];
     const toneBias = toneStructureBias[currentTone] || toneStructureBias.emotionless;
     if (length === 'short') {
       const weights = applyBias2(toneBias.short, cfg.shortBias);
-      pickPattern([
+      const basePatterns = [
         { weight: weights[0], apply: () => parts.push(preVal, contVal) },
         { weight: weights[1], apply: () => parts.push(contVal, cutVal) },
+      ];
+      const shortVariants = [
+        { weight: 40, apply: () => parts.push(cutVal) },
+        { weight: 30, apply: () => parts.push(preVal, cutVal) },
+        { weight: 30, apply: () => parts.push(preVal, afterVal) },
+      ];
+      pickPatternGroup([
+        { weight: 70, patterns: basePatterns },
+        { weight: 30, patterns: shortVariants },
       ]);
     } else if (length === 'medium') {
       if (currentStyle === 'restrained') {
@@ -647,11 +678,24 @@ export function generateLine({
           Math.round(toneBias.medium[2] * 0.7),
         ];
         const weights = applyBias4(baseWeights, cfg.midBias);
-        pickPattern([
-          { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
-          { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
-          { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
-          { weight: weights[3], apply: () => parts.push(preVal, contVal, extraCont, afterVal) },
+        pickPatternGroup([
+          {
+            weight: 70,
+            patterns: [
+              { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
+              { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
+              { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, cutVal) },
+              { weight: weights[3], apply: () => parts.push(preVal, contVal, extraCont, afterVal) },
+            ],
+          },
+          {
+            weight: 30,
+            patterns: [
+              { weight: 1, apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
+              { weight: 1, apply: () => parts.push(preVal, extraCont, cutVal, afterVal) },
+              { weight: 1, apply: () => parts.push(contVal, cutVal, contVal, afterVal) },
+            ],
+          },
         ]);
       } else {
         const baseWeights = [
@@ -660,10 +704,23 @@ export function generateLine({
           Math.round((toneBias.medium[0] + toneBias.medium[1]) * 0.35),
         ];
         const weights = applyBias3(baseWeights, cfg.midBias);
-        pickPattern([
-          { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
-          { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
-          { weight: weights[2], apply: () => parts.push(preVal, extraCont, cutVal) },
+        pickPatternGroup([
+          {
+            weight: 70,
+            patterns: [
+              { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal) },
+              { weight: weights[1], apply: () => parts.push(preVal, contVal, afterVal) },
+              { weight: weights[2], apply: () => parts.push(preVal, extraCont, cutVal) },
+            ],
+          },
+          {
+            weight: 30,
+            patterns: [
+              { weight: 1, apply: () => parts.push(contVal, cutVal, afterVal) },
+              { weight: 1, apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
+              { weight: 1, apply: () => parts.push(preVal, extraCont, extraCut) },
+            ],
+          },
         ]);
       }
     } else if (length === 'long') {
@@ -675,11 +732,24 @@ export function generateLine({
         Math.round((toneBias.long[0] + toneBias.long[1]) * 0.35),
       ];
       let weights = applyBias4(baseWeights, cfg.longBias);
-      pickPattern([
-        { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
-        { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
-        { weight: weights[2], apply: () => parts.push(preVal, contVal, cutVal, afterVal, extraAfter) },
-        { weight: weights[3], apply: () => parts.push(preVal, extraCont, cutVal, afterVal) },
+      pickPatternGroup([
+        {
+          weight: 70,
+          patterns: [
+            { weight: weights[0], apply: () => parts.push(preVal, contVal, cutVal, afterVal) },
+            { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal) },
+            { weight: weights[2], apply: () => parts.push(preVal, contVal, cutVal, afterVal, extraAfter) },
+            { weight: weights[3], apply: () => parts.push(preVal, extraCont, cutVal, afterVal) },
+          ],
+        },
+        {
+          weight: 30,
+          patterns: [
+            { weight: 1, apply: () => parts.push(preVal, contVal, cutVal, extraCont, afterVal) },
+            { weight: 1, apply: () => parts.push(contVal, cutVal, contVal, afterVal, extraAfter) },
+            { weight: 1, apply: () => parts.push(preVal, extraCont, cutVal, contVal, afterVal) },
+          ],
+        },
       ]);
     } else {
       const baseWeights = [
@@ -689,11 +759,24 @@ export function generateLine({
         Math.round((toneBias.long[0] + toneBias.long[1]) * 0.35),
       ];
       let weights = applyBias4(baseWeights, cfg.longBias);
-      pickPattern([
-        { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
-        { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },
-        { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter) },
-        { weight: weights[3], apply: () => parts.push(preVal, extraCont, extraCont2, cutVal, afterVal) },
+      pickPatternGroup([
+        {
+          weight: 70,
+          patterns: [
+            { weight: weights[0], apply: () => parts.push(preVal, contVal, extraCont, cutVal, afterVal, extraAfter) },
+            { weight: weights[1], apply: () => parts.push(preVal, contVal, extraCont, cutVal, extraAfter, afterVal) },
+            { weight: weights[2], apply: () => parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter) },
+            { weight: weights[3], apply: () => parts.push(preVal, extraCont, extraCont2, cutVal, afterVal) },
+          ],
+        },
+        {
+          weight: 30,
+          patterns: [
+            { weight: 1, apply: () => parts.push(preVal, contVal, cutVal, contVal, afterVal, extraAfter) },
+            { weight: 1, apply: () => parts.push(contVal, cutVal, contVal, extraCut, afterVal, extraAfter) },
+            { weight: 1, apply: () => parts.push(preVal, extraCont, cutVal, contVal, extraCont2, afterVal) },
+          ],
+        },
       ]);
     }
   }
@@ -741,11 +824,14 @@ export function generateLine({
     }
   }
 
-  if (flowMode === 'sudden') {
+  const mixedFlow = mixFlowBias();
+  const appliedFlow = flowMode !== 'none' ? flowMode : mixedFlow;
+
+  if (appliedFlow === 'sudden') {
     buildSudden();
-  } else if (flowMode === 'endure') {
+  } else if (appliedFlow === 'endure') {
     buildEndure();
-  } else if (flowMode === 'continuous') {
+  } else if (appliedFlow === 'continuous') {
     buildContinuous();
   } else {
     buildDefault();
