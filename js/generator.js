@@ -537,7 +537,7 @@ export function generateLine({
 
   const toneBlocklist = {
     emotionless: ['harsh', 'intense'],
-    timid: ['harsh', 'intense'],
+    timid: ['harsh', 'intense', 'neutral'],
     shaken: ['harsh'],
     panic: ['soft'],
     rage: ['soft', 'neutral'],
