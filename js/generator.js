@@ -173,11 +173,11 @@ export function generateLine({
     rage: { after: 0.2, cut: 0.15, compress: 0.45 },
   };
   const symbolTuning = {
-    emotionless: { rate: 0.08 },
-    timid: { rate: 0.1 },
-    shaken: { rate: 0.15 },
-    panic: { rate: 0.25 },
-    rage: { rate: 0.3 },
+    emotionless: { rate: 1 },
+    timid: { rate: 1 },
+    shaken: { rate: 1 },
+    panic: { rate: 1 },
+    rage: { rate: 1 },
   };
 
   function clampRate(value, min = 0, max = 0.9) {
@@ -188,10 +188,12 @@ export function generateLine({
     const base = ellipsisTuning[currentTone] || ellipsisTuning.emotionless;
     const boost = reduceEllipsis ? 0.15 : 0;
     const compressBoost = reduceEllipsis ? 0.1 : 0;
+    const styleBoost = currentStyle === 'unsteady' ? 0.12 : currentStyle === 'restrained' ? -0.12 : 0;
+    const styleCompress = currentStyle === 'unsteady' ? 0.08 : currentStyle === 'restrained' ? -0.08 : 0;
     return {
-      after: clampRate(base.after + boost),
-      cut: clampRate(base.cut + boost),
-      compress: clampRate(base.compress + compressBoost),
+      after: clampRate(base.after + boost + styleBoost),
+      cut: clampRate(base.cut + boost + styleBoost),
+      compress: clampRate(base.compress + compressBoost + styleCompress),
     };
   }
 
@@ -212,6 +214,7 @@ export function generateLine({
   function applySymbolToCut(text) {
     if (!text) return text;
     if (!symbolTuning[currentTone]) return text;
+    if (currentStyle === 'restrained') return text;
     const symbol = pickSymbol();
     if (!symbol) return text;
     const base = text.replace(/…+$/g, '');
@@ -257,7 +260,15 @@ export function generateLine({
       2: { harsh: 1.15, intense: 1.2, neutral: 1, soft: 0.85 },
     };
     const bias = levelBias[intensity] || levelBias[1];
-    return base * (bias[item.tone] || 1);
+    const core = normalizeCore(item.text);
+    const len = core.length;
+    const styleBias = {
+      restrained: len <= 2 ? 1.2 : 0.85,
+      unsteady: len <= 2 ? 0.9 : 1.15,
+      flat: 1,
+      none: 1,
+    };
+    return base * (bias[item.tone] || 1) * (styleBias[currentStyle] || 1);
   }
 
   function pickByToneAvoid(items, prevText, strict) {
