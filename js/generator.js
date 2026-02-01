@@ -158,11 +158,16 @@ export function generateLine({
   };
   const currentStyle = styleConfig[style] ? style : 'none';
   const toneStructureBias = {
-    emotionless: { short: [55, 45], medium: [55, 45], long: [35, 50, 15] },
-    timid: { short: [80, 20], medium: [25, 75], long: [20, 30, 50] },
-    shaken: { short: [30, 70], medium: [15, 15, 70], long: [10, 75, 15] },
-    panic: { short: [25, 75], medium: [85, 15], long: [80, 15, 5] },
-    rage: { short: [20, 80], medium: [85, 15], long: [85, 10, 5] },
+    // 無感情: ばらけず均質寄り
+    emotionless: { short: [65, 35], medium: [60, 40], long: [45, 45, 10] },
+    // 弱気: 前兆/余韻寄りを強く
+    timid: { short: [90, 10], medium: [20, 80], long: [15, 25, 60] },
+    // 動揺: 継続・短い波が中心
+    shaken: { short: [20, 80], medium: [10, 10, 80], long: [10, 80, 10] },
+    // 焦り: 継続優先＋余韻を抑える
+    panic: { short: [15, 85], medium: [90, 10], long: [85, 10, 5] },
+    // 激昂: 区切り強め＋余韻ほぼなし
+    rage: { short: [10, 90], medium: [90, 10], long: [90, 8, 2] },
   };
 
   const ellipsisTuning = {
