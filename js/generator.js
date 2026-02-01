@@ -325,7 +325,33 @@ export function generateLine({
   function pickCutStrong() {
     const pool = cutFiltered[intensity] || [];
     if (!pool.length) return pickCutFromIntensityAvoid(cutFiltered, contVal, strictRepeat);
-    const weightMap = { harsh: 1.6, intense: 1.4, neutral: 0.6, soft: 0.4 };
+    const weightMap = { harsh: 2.2, intense: 1.8, neutral: 0.45, soft: 0.3 };
+    const total = pool.reduce((sum, item) => sum + getToneWeight(item) * (weightMap[item.tone] || 1), 0);
+    let r = rng() * total;
+    for (const item of pool) {
+      r -= getToneWeight(item) * (weightMap[item.tone] || 1);
+      if (r <= 0) return item.text;
+    }
+    return pool[pool.length - 1].text;
+  }
+
+  function pickPreSoft() {
+    const pool = pre[intensity] || [];
+    if (!pool.length) return pickTextFromIntensity(pre);
+    const weightMap = { soft: 1.7, neutral: 1.1, harsh: 0.6, intense: 0.6 };
+    const total = pool.reduce((sum, item) => sum + getToneWeight(item) * (weightMap[item.tone] || 1), 0);
+    let r = rng() * total;
+    for (const item of pool) {
+      r -= getToneWeight(item) * (weightMap[item.tone] || 1);
+      if (r <= 0) return item.text;
+    }
+    return pool[pool.length - 1].text;
+  }
+
+  function pickContStrong() {
+    const pool = contFiltered[intensity] || [];
+    if (!pool.length) return pickTextFromIntensityAvoid(contFiltered, preVal, strictRepeat);
+    const weightMap = { harsh: 1.6, intense: 1.6, neutral: 0.7, soft: 0.6 };
     const total = pool.reduce((sum, item) => sum + getToneWeight(item) * (weightMap[item.tone] || 1), 0);
     let r = rng() * total;
     for (const item of pool) {
@@ -484,6 +510,7 @@ export function generateLine({
   const flowMode = flow || 'none';
   const strictRepeat = length === 'xlong' || flowMode === 'sudden';
   const preVal = pickTextFromIntensity(pre);
+  let endurePreVal = preVal;
   let burstCount = 0;
   const incBurstIfNeeded = (text) => {
     if (!text) return;
@@ -521,6 +548,14 @@ export function generateLine({
       cutVal = pickCutFromIntensityAvoid(cutNoBurst, contVal, strictRepeat);
     }
   }
+
+  const endurePre = pickPreSoft();
+  const endureCont = pickTextFromIntensityAvoid(contFiltered, endurePre, strictRepeat);
+  const endureCut = pickCutFromIntensityAvoid(cutFiltered, endureCont, strictRepeat);
+  const endureExtraCut = pickTextFromIntensityAvoid(cutFiltered, endureCut, strictRepeat);
+
+  const suddenCutStrong = dropLeadingEllipsis(pickCutStrong());
+  const suddenContStrong = dropLeadingEllipsis(pickContStrong());
 
   function dropLeadingEllipsis(text) {
     return text.replace(/^…+/, '');
@@ -609,9 +644,9 @@ export function generateLine({
   }
 
   function buildSudden() {
-    const suddenCont = dropLeadingEllipsis(contVal);
+    const suddenCont = suddenContStrong;
     const suddenExtraCont = dropLeadingEllipsis(extraCont);
-    const suddenCut = dropLeadingEllipsis(pickCutStrong());
+    const suddenCut = suddenCutStrong;
     if (length === 'short') {
       parts.push(suddenCut);
     } else if (length === 'medium') {
@@ -625,25 +660,29 @@ export function generateLine({
 
   function buildEndure() {
     if (length === 'short') {
-      parts.push(preVal, contVal, extraCut, cutVal);
+      parts.push(endurePre, endureCont, endureExtraCut, endureCut);
     } else if (length === 'medium') {
-      parts.push(preVal, contVal, extraCut, cutVal, afterVal);
+      parts.push(endurePre, endureCont, endureExtraCut, endureCut, afterVal);
     } else if (length === 'long') {
-      parts.push(preVal, contVal, extraCut, cutVal, afterVal);
+      parts.push(endurePre, endureCont, endureExtraCut, endureCut, afterVal);
     } else {
-      parts.push(preVal, contVal, extraCut, cutVal, afterVal, extraAfter);
+      parts.push(endurePre, endureCont, endureExtraCut, endureCut, afterVal, extraAfter);
     }
   }
 
   function buildContinuous() {
     if (length === 'short') {
-      parts.push(contVal, extraCont);
+      const contStrong = pickContStrong();
+      parts.push(contStrong, contVal, extraCont);
     } else if (length === 'medium') {
-      parts.push(preVal, contVal, extraCont, extraCont2, cutVal);
+      const contStrong = pickContStrong();
+      parts.push(preVal, contStrong, contVal, extraCont, extraCont2, cutVal);
     } else if (length === 'long') {
-      parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal);
+      const contStrong = pickContStrong();
+      parts.push(preVal, contStrong, contVal, extraCont, extraCont2, cutVal, afterVal);
     } else {
-      parts.push(preVal, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
+      const contStrong = pickContStrong();
+      parts.push(preVal, contStrong, contVal, extraCont, extraCont2, cutVal, afterVal, extraAfter);
     }
   }
 
