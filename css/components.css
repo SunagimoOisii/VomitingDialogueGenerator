@@ -680,6 +680,32 @@ input[type="range"] {
     border-right: none;
   }
 
+  .panel {
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .field-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .field.inline .field-head {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .field.inline .field-body {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .field.inline .seg,
+  .field.inline .symbol-options {
+    width: 100%;
+  }
+
   .history-list {
     max-height: none;
   }

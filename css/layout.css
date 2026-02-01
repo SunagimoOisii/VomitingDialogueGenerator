@@ -104,6 +104,10 @@
 }
 
 @media (max-width: 900px) {
+  .page {
+    height: auto;
+  }
+
   .layout {
     grid-template-columns: 1fr;
     gap: 18px;
