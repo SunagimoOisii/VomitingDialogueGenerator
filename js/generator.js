@@ -528,8 +528,31 @@ export function generateLine({
     return sets.map((bucket) => limitNeutral(bucket, ratio));
   }
 
+  function applyToneBlocklist(sets, blocked) {
+    return sets.map((bucket) => {
+      const filtered = bucket.filter((item) => !blocked.includes(item.tone));
+      return filtered.length ? filtered : bucket;
+    });
+  }
+
+  const toneBlocklist = {
+    emotionless: ['harsh', 'intense'],
+    timid: ['harsh', 'intense'],
+    shaken: ['harsh'],
+    panic: ['soft'],
+    rage: ['soft', 'neutral'],
+  };
+
+  const blockedTones = toneBlocklist[currentTone] || [];
+  if (blockedTones.length) {
+    pre = applyToneBlocklist(pre, blockedTones);
+    cont = applyToneBlocklist(cont, blockedTones);
+    cut = applyToneBlocklist(cut, blockedTones);
+    after = applyToneBlocklist(after, blockedTones);
+  }
+
   if (currentTone !== 'emotionless') {
-    const neutralCap = 0.35;
+    const neutralCap = 0.2;
     pre = applyNeutralLimit(pre, neutralCap);
     cont = applyNeutralLimit(cont, neutralCap);
     cut = applyNeutralLimit(cut, neutralCap);
