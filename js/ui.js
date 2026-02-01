@@ -51,6 +51,17 @@ function getEnabledBreakRules() {
   return enabled.length ? enabled : ['cut', 'sokuon', 'choke', 'repeat', 'split'];
 }
 
+function getEnabledSymbols() {
+  const checks = document.querySelectorAll('input[name="symbol-option"]');
+  const enabled = [];
+  for (const input of checks) {
+    if (input instanceof HTMLInputElement && input.checked) {
+      enabled.push(input.value);
+    }
+  }
+  return enabled;
+}
+
 function normalizeTone(value) {
   const map = {
     harsh: 'rage',
@@ -165,6 +176,13 @@ function applyParams(params) {
       }
     }
   }
+  const symbolChecks = document.querySelectorAll('input[name="symbol-option"]');
+  const enabledSymbols = new Set(params.symbolOptions || []);
+  for (const input of symbolChecks) {
+    if (input instanceof HTMLInputElement) {
+      input.checked = enabledSymbols.has(input.value);
+    }
+  }
   updateBreakExamples();
 }
 
@@ -219,9 +237,10 @@ function formatParams(params) {
   const rules = params.breakRules?.length
     ? `ルール:${params.breakRules.map((rule) => ruleMap[rule] || rule).join(',')}`
     : '';
+  const symbols = params.symbolOptions?.length ? `記号:${params.symbolOptions.join('')}` : '';
   const phrase = params.phrase ? `フレーズ:${params.phrase}` : '';
   const seed = params.seedText ? `シード:${params.seedText}` : '';
-  return [...base, ellipsis, rules, phrase, seed].filter(Boolean).join('・');
+  return [...base, ellipsis, rules, symbols, phrase, seed].filter(Boolean).join('・');
 }
 
 function updateBreakExamples() {
@@ -250,6 +269,7 @@ function generateAndRender() {
     breakWeights: getBreakRuleWeights(),
     seedText: seedInput?.value,
     reduceEllipsis: !!ellipsisToggle?.checked,
+    symbolOptions: getEnabledSymbols(),
     lexicon,
   });
 
@@ -299,6 +319,7 @@ export function initUI() {
       breakWeights: getBreakRuleWeights(),
       seedText: seedInput?.value?.trim() || '',
       reduceEllipsis: !!ellipsisToggle?.checked,
+      symbolOptions: getEnabledSymbols(),
     };
     const next = addHistoryItem({ text, params });
     renderHistory(next);

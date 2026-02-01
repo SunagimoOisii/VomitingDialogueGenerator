@@ -126,6 +126,7 @@ export function generateLine({
   style,
   flow,
   reduceEllipsis,
+  symbolOptions,
   lexicon,
 }) {
   const toneAlias = {
@@ -171,6 +172,13 @@ export function generateLine({
     panic: { after: 0.25, cut: 0.2, compress: 0.5 },
     rage: { after: 0.2, cut: 0.15, compress: 0.45 },
   };
+  const symbolTuning = {
+    emotionless: { rate: 0.08 },
+    timid: { rate: 0.1 },
+    shaken: { rate: 0.15 },
+    panic: { rate: 0.25 },
+    rage: { rate: 0.3 },
+  };
 
   function clampRate(value, min = 0, max = 0.9) {
     return Math.max(min, Math.min(max, value));
@@ -185,6 +193,29 @@ export function generateLine({
       cut: clampRate(base.cut + boost),
       compress: clampRate(base.compress + compressBoost),
     };
+  }
+
+  function pickSymbol() {
+    const map = {
+      '!': '！',
+      '!?': '！？',
+      '?!': '？！',
+      '♡': '♡',
+    };
+    const options = (symbolOptions && symbolOptions.length ? symbolOptions : Object.keys(map))
+      .map((key) => map[key])
+      .filter(Boolean);
+    if (!options.length) return '';
+    return options[Math.floor(rng() * options.length)];
+  }
+
+  function applySymbolToCut(text) {
+    if (!text) return text;
+    if (!symbolTuning[currentTone]) return text;
+    const symbol = pickSymbol();
+    if (!symbol) return text;
+    const base = text.replace(/…+$/g, '');
+    return `${base}${symbol}`;
   }
 
   function pickByTone(items) {
@@ -451,6 +482,7 @@ export function generateLine({
   const contVal = pickTextFromIntensityAvoid(contFiltered, preVal, strictRepeat);
   incBurstIfNeeded(contVal);
   let cutVal = pickCutFromIntensityAvoid(cutFiltered, contVal, strictRepeat);
+  cutVal = applySymbolToCut(cutVal);
   incBurstIfNeeded(cutVal);
   const afterVal = pickAfterFromIntensityAvoid(after, cutVal, strictRepeat);
   let extraCont = pickTextFromIntensityAvoid(contFiltered, contVal, strictRepeat);
@@ -458,6 +490,7 @@ export function generateLine({
   let extraCont2 = pickTextFromIntensityAvoid(contFiltered, extraCont, strictRepeat);
   incBurstIfNeeded(extraCont2);
   let extraCut = pickTextFromIntensityAvoid(cutFiltered, cutVal, strictRepeat);
+  extraCut = applySymbolToCut(extraCut);
   incBurstIfNeeded(extraCut);
   const extraAfter = pickAfterFromIntensityAvoid(after, afterVal, strictRepeat);
 
