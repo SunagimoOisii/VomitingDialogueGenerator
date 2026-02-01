@@ -584,7 +584,13 @@ export function generateLine({
         { weight: weights[1], apply: () => parts.push(contVal, cutVal) },
       ]);
     } else if (length === 'medium') {
-      if (currentTone === 'shaken') {
+      if (currentStyle === 'restrained') {
+        parts.push(preVal, contVal, cutVal);
+      } else if (currentStyle === 'unsteady') {
+        parts.push(preVal, contVal, extraCont, cutVal);
+      } else if (currentStyle === 'flat') {
+        parts.push(preVal, contVal, afterVal);
+      } else if (currentTone === 'shaken') {
         const baseWeights = [
           toneBias.medium[0],
           toneBias.medium[1],
