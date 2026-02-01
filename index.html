@@ -93,7 +93,7 @@
           <label class="field">
             <div class="field-head">
               <span class="field-label">トーン</span>
-              <span class="field-desc">語彙の重み</span>
+              <span class="field-desc">影響:語彙/構成</span>
             </div>
             <div class="seg" data-seg="tone">
               <button class="seg-btn is-active" data-value="emotionless">無感情</button>
@@ -102,12 +102,13 @@
               <button class="seg-btn" data-value="panic">焦り</button>
               <button class="seg-btn" data-value="rage">激昂</button>
             </div>
+            <div class="field-hint">無感情=均一 / 弱気=短息 / 動揺=揺れ / 焦り=詰まり / 激昂=荒さ</div>
           </label>
 
           <label class="field">
             <div class="field-head">
               <span class="field-label">口調(微差)</span>
-              <span class="field-desc">言葉の並び方や間の取り方</span>
+              <span class="field-desc">影響:リズム＋記号量＋短音比率</span>
             </div>
             <div class="seg" data-seg="style">
               <button class="seg-btn is-active" data-value="none">指定なし</button>
@@ -115,12 +116,13 @@
               <button class="seg-btn" data-value="unsteady">乱れ</button>
               <button class="seg-btn" data-value="flat">無機質</button>
             </div>
+            <div class="field-hint">抑制=短め / 乱れ=揺れ / 無機質=均一</div>
           </label>
 
           <label class="field">
             <div class="field-head">
               <span class="field-label">展開</span>
-              <span class="field-desc">構成の流れ</span>
+              <span class="field-desc">影響:文の構成(流れ)</span>
             </div>
             <div class="seg" data-seg="flow">
               <button class="seg-btn is-active" data-value="none">指定なし</button>
@@ -128,6 +130,7 @@
               <button class="seg-btn" data-value="endure">耐えて</button>
               <button class="seg-btn" data-value="continuous">連続</button>
             </div>
+            <div class="field-hint">突然: 区切り→余韻 / 耐えて: 前兆→継続→区切り / 連続: 前兆→継続→継続→区切り</div>
           </label>
 
           <label class="field">
@@ -164,6 +167,7 @@
                 ♡
               </label>
             </div>
+            <div class="field-hint">ONの記号は語尾に確定で付与</div>
           </label>
 
           <details class="phrase-fold">
