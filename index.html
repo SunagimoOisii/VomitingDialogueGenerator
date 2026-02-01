@@ -26,176 +26,177 @@
   <div class="bg-orb orb-b"></div>
 
   <main class="page">
-    <header class="hero">
-      <div class="hero-left">
-        <h1>嘔吐セリフジェネレータ</h1>
-      </div>
-    </header>
-
     <div class="layout">
-      <div class="stack">
-        <section class="panel output">
-          <div class="panel-head">
-            <h2>出力</h2>
+      <section class="panel controls-panel">
+        <header class="hero">
+          <div class="hero-left">
+            <h1>嘔吐セリフジェネレータ</h1>
           </div>
-          <div class="output-actions">
-            <button id="generate-btn" class="btn-primary">生成</button>
-            <button id="copy-btn" class="btn-ghost">コピー</button>
-            <button id="history-add-btn" class="btn-ghost">履歴追加</button>
-          </div>
-          <div class="output-box">
-            <p id="output">ここに生成結果を表示</p>
-          </div>
-
-          <details class="history-fold">
-            <summary>
-              履歴
-              <span class="summary-meta">最大50件</span>
-            </summary>
-            <div class="history-actions">
-              <button id="history-clear-btn" class="btn-ghost">全削除</button>
-            </div>
-            <div id="history-empty" class="history-empty">履歴はまだありません</div>
-            <ul id="history-list" class="history-list"></ul>
-          </details>
-        </section>
-      </div>
-
-      <section class="panel">
+        </header>
         <div class="panel-head">
           <h2>操作</h2>
         </div>
 
         <div class="controls">
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">吐き気レベル</span>
-              <span class="field-desc">語彙の強さ</span>
-            </div>
-            <input id="level-input" type="range" min="1" max="5" value="3" />
-            <div class="ticks">
-              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-            </div>
-          </label>
-
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">文章量</span>
-            </div>
-            <div class="seg" data-seg="length">
-              <button class="seg-btn is-active" data-value="short">短</button>
-              <button class="seg-btn" data-value="medium">中</button>
-              <button class="seg-btn" data-value="long">長</button>
-              <button class="seg-btn" data-value="xlong">超長</button>
-            </div>
-          </label>
-
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">トーン</span>
-              <span class="field-desc">影響:語彙/構成</span>
-            </div>
-            <div class="seg" data-seg="tone">
-              <button class="seg-btn is-active" data-value="emotionless">無感情</button>
-              <button class="seg-btn" data-value="timid">弱気</button>
-              <button class="seg-btn" data-value="shaken">動揺</button>
-              <button class="seg-btn" data-value="panic">焦り</button>
-              <button class="seg-btn" data-value="rage">激昂</button>
-            </div>
-            <div class="field-hint">無感情=均一 / 弱気=短息 / 動揺=揺れ / 焦り=詰まり / 激昂=荒さ</div>
-          </label>
-
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">口調(微差)</span>
-              <span class="field-desc">影響:リズム＋記号量＋短音比率</span>
-            </div>
-            <div class="seg" data-seg="style">
-              <button class="seg-btn is-active" data-value="none">指定なし</button>
-              <button class="seg-btn" data-value="restrained">抑制</button>
-              <button class="seg-btn" data-value="unsteady">乱れ</button>
-              <button class="seg-btn" data-value="flat">無機質</button>
-            </div>
-            <div class="field-hint">抑制=短め / 乱れ=揺れ / 無機質=均一</div>
-          </label>
-
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">展開</span>
-              <span class="field-desc">影響:文の構成(流れ)</span>
-            </div>
-            <div class="seg" data-seg="flow">
-              <button class="seg-btn is-active" data-value="none">指定なし</button>
-              <button class="seg-btn" data-value="sudden">突然</button>
-              <button class="seg-btn" data-value="endure">耐えて</button>
-              <button class="seg-btn" data-value="continuous">連続</button>
-            </div>
-            <div class="field-hint">突然: 区切り→余韻 / 耐えて: 前兆→継続→区切り / 連続: 前兆→継続→継続→区切り</div>
-          </label>
-
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">省略記号</span>
-              <span class="field-desc">「…」を減らして読みやすく</span>
-            </div>
-            <label class="check-item">
-              <input id="ellipsis-toggle" type="checkbox" />
-              少なめにする
+          <div class="control-card">
+            <div class="control-card-title">強さ/長さ</div>
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">吐き気(語彙)の強さ</span>
+                </div>
+                <div class="field-body">
+                  <input id="level-input" type="range" min="1" max="5" value="3" />
+                </div>
+              </div>
             </label>
-          </label>
 
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">記号系</span>
-              <span class="field-desc">語尾に付く記号の種類</span>
-            </div>
-            <div class="symbol-options">
-              <label class="check-item">
-                <input type="checkbox" name="symbol-option" value="!" checked />
-                ！
-              </label>
-              <label class="check-item">
-                <input type="checkbox" name="symbol-option" value="!?" checked />
-                ！？
-              </label>
-              <label class="check-item">
-                <input type="checkbox" name="symbol-option" value="?!" checked />
-                ？！
-              </label>
-              <label class="check-item">
-                <input type="checkbox" name="symbol-option" value="♡" checked />
-                ♡
-              </label>
-            </div>
-            <div class="field-hint">ONの記号は語尾に確定で付与</div>
-          </label>
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">文の長さ</span>
+                </div>
+                <div class="field-body">
+                  <div class="seg" data-seg="length">
+                    <button class="seg-btn is-active" data-value="short">短</button>
+                    <button class="seg-btn" data-value="medium">中</button>
+                    <button class="seg-btn" data-value="long">長</button>
+                    <button class="seg-btn" data-value="xlong">超長</button>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
 
-          <details class="phrase-fold">
-            <summary>
+          <div class="control-card">
+            <div class="control-card-title">印象</div>
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">トーン(語彙/構成)</span>
+                </div>
+                <div class="field-body">
+                  <div class="seg" data-seg="tone">
+                    <button class="seg-btn is-active" data-value="emotionless">無</button>
+                    <button class="seg-btn" data-value="timid">弱気</button>
+                    <button class="seg-btn" data-value="shaken">動揺</button>
+                    <button class="seg-btn" data-value="panic">焦り</button>
+                    <button class="seg-btn" data-value="rage">激昂</button>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">口調(リズム/記号量/短音比率)</span>
+                </div>
+                <div class="field-body">
+                  <div class="seg" data-seg="style">
+                    <button class="seg-btn is-active" data-value="none">無</button>
+                    <button class="seg-btn" data-value="restrained">抑制</button>
+                    <button class="seg-btn" data-value="unsteady">乱れ</button>
+                    <button class="seg-btn" data-value="flat">無機質</button>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div class="control-card">
+            <div class="control-card-title">流れ/記号</div>
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">展開(文の構成/流れ)</span>
+                </div>
+                <div class="field-body">
+                  <div class="seg" data-seg="flow">
+                    <button class="seg-btn is-active" data-value="none">無</button>
+                    <button class="seg-btn" data-value="sudden">突然</button>
+                    <button class="seg-btn" data-value="endure">耐えて</button>
+                    <button class="seg-btn" data-value="continuous">連続</button>
+                  </div>
+                </div>
+              </div>
+            </label>
+
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">「…」の数</span>
+                </div>
+                <div class="field-body">
+                  <label class="check-item">
+                    <input id="ellipsis-toggle" type="checkbox" />
+                    少なめにする
+                  </label>
+                </div>
+              </div>
+            </label>
+
+            <label class="field inline">
+              <div class="field-row">
+                <div class="field-head">
+                  <span class="field-label">記号系(語尾に付く記号の種類)</span>
+                </div>
+                <div class="field-body">
+                  <div class="symbol-options">
+                    <label class="check-item">
+                      <input type="checkbox" name="symbol-option" value="!" checked />
+                      ！
+                    </label>
+                    <label class="check-item">
+                      <input type="checkbox" name="symbol-option" value="!?" checked />
+                      ！？
+                    </label>
+                    <label class="check-item">
+                      <input type="checkbox" name="symbol-option" value="?!" checked />
+                      ？！
+                    </label>
+                    <label class="check-item">
+                      <input type="checkbox" name="symbol-option" value="♡" checked />
+                      ♡
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <details class="control-card control-card-fold">
+            <summary class="control-card-summary">
               フレーズ
               <span class="summary-meta">任意</span>
             </summary>
             <div class="phrase-block">
               <input id="phrase-input" type="text" placeholder="任意フレーズ(例: やめろ)" />
-              <div class="field">
-                <div class="field-head">
-                  <span class="field-label">フレーズ形式</span>
-                  <span class="field-desc">そのまま or 途切れ</span>
-                </div>
-                <div class="seg" data-seg="phrase-mode">
-                  <button class="seg-btn is-active" data-value="raw">そのまま</button>
-                  <button class="seg-btn" data-value="broken">途切れ</button>
+              <div class="field inline">
+                <div class="field-row">
+                  <div class="field-head">
+                    <span class="field-label">フレーズ形式</span>
+                  </div>
+                  <div class="field-body">
+                    <div class="seg" data-seg="phrase-mode">
+                      <button class="seg-btn is-active" data-value="raw">そのまま</button>
+                      <button class="seg-btn" data-value="broken">途切れ</button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="field">
-                <div class="field-head">
-                  <span class="field-label">途切れ強度</span>
-                  <span class="field-desc">欠ける長さが変わる</span>
-                </div>
-                <div class="seg" data-seg="phrase-break">
-                  <button class="seg-btn" data-value="weak">弱</button>
-                  <button class="seg-btn is-active" data-value="mid">中</button>
-                  <button class="seg-btn" data-value="strong">強</button>
+              <div class="field inline">
+                <div class="field-row">
+                  <div class="field-head">
+                    <span class="field-label">途切れ強度</span>
+                  </div>
+                  <div class="field-body">
+                    <div class="seg" data-seg="phrase-break">
+                      <button class="seg-btn" data-value="weak">弱</button>
+                      <button class="seg-btn is-active" data-value="mid">中</button>
+                      <button class="seg-btn" data-value="strong">強</button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <details class="phrase-advanced">
@@ -253,7 +254,7 @@
                   </div>
                 </div>
                 <div class="break-examples">
-                  <div class="break-examples-head">例(現在のフレーズ)</div>
+                  <div class="break-examples-head">例</div>
                   <ul class="break-examples-list">
                     <li data-rule="cut"><span class="ex-label">末尾カット</span><span class="ex-text">-</span></li>
                     <li data-rule="sokuon"><span class="ex-label">促音</span><span class="ex-text">-</span></li>
@@ -264,23 +265,55 @@
                 </div>
               </details>
             </div>
+
           </details>
 
-          <label class="field">
-            <div class="field-head">
-              <span class="field-label">シード</span>
-              <span class="field-desc">同じ条件で再現できる</span>
-            </div>
-            <input id="seed-input" type="text" placeholder="未指定ならランダム" />
-          </label>
+          <div class="control-card">
+            <div class="control-card-title">シード</div>
+            <label class="field">
+              <div class="field-head">
+                <span class="field-label">同じ条件で再現できる</span>
+              </div>
+              <input id="seed-input" type="text" placeholder="未指定ならランダム" />
+            </label>
+          </div>
         </div>
+
+        <section class="notice-box">
+          本ツールの生成結果は創作目的で提供されます。閲覧・利用は自己判断とし、
+          不快を感じた場合は閲覧を中止してください。個人情報の入力・保存は行わないでください。
+        </section>
       </section>
+
+      <div class="stack">
+        <section class="panel output">
+          <div class="panel-head">
+            <h2>出力</h2>
+          </div>
+          <div class="output-actions">
+            <button id="generate-btn" class="btn-primary">生成</button>
+            <button id="copy-btn" class="btn-ghost">コピー</button>
+            <button id="history-add-btn" class="btn-ghost">履歴追加</button>
+          </div>
+          <div class="output-box">
+            <p id="output">ここに生成結果を表示</p>
+          </div>
+
+          <details class="history-fold">
+            <summary>
+              履歴
+              <span class="summary-meta">最大50件</span>
+            </summary>
+            <div class="history-actions">
+              <button id="history-clear-btn" class="btn-ghost">全削除</button>
+            </div>
+            <div id="history-empty" class="history-empty">履歴はまだありません</div>
+            <ul id="history-list" class="history-list"></ul>
+          </details>
+        </section>
+      </div>
     </div>
 
-    <section class="notice-box">
-      本ツールの生成結果は創作目的で提供されます。閲覧・利用は自己判断とし、
-      不快を感じた場合は閲覧を中止してください。個人情報の入力・保存は行わないでください。
-    </section>
   </main>
 
   <section class="gate is-visible" aria-modal="true" role="dialog">

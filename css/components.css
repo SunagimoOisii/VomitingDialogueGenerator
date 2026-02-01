@@ -1,10 +1,50 @@
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(8px);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 18px 40px rgba(18, 18, 18, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.panel.output {
+  position: static;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.panel.controls-panel {
+  max-height: 100%;
+  overflow: auto;
+  padding-right: 16px;
+  padding-left: 16px;
+  margin-right: 0;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 30, 30, 0.25) transparent;
+}
+
+.panel.controls-panel::-webkit-scrollbar {
+  width: 10px;
+}
+
+.panel.controls-panel::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.panel.controls-panel::-webkit-scrollbar-thumb {
+  background: rgba(30, 30, 30, 0.2);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.panel.controls-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 30, 30, 0.35);
+  background-clip: padding-box;
 }
 
 .panel-head {
@@ -16,44 +56,114 @@
 
 .panel h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 22px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  padding-left: 0;
 }
 
 .controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  gap: 22px;
+  width: 100%;
 }
 
 .field {
   display: grid;
-  gap: 8px;
+  gap: 12px;
+}
+
+.field.inline {
+  gap: 6px;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.field.inline .field-head {
+  min-width: 170px;
+}
+
+.field.inline .field-body {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.field.inline .seg {
+  width: auto;
+}
+
+.field.inline .symbol-options {
+  width: auto;
+}
+
+.control-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 22px;
+  background: #ffffffc7;
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.control-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--line);
+}
+
+.control-card-summary {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-card-summary::-webkit-details-marker {
+  display: none;
+}
+
+.control-card-summary::after {
+  content: "▸";
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+.control-card-fold[open] .control-card-summary::after {
+  transform: rotate(90deg);
 }
 
 .field-label {
-  font-size: 12px;
+  font-size: 16px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
 }
 
 .field-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.field-desc {
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.08em;
+  display: block;
 }
 
 .field-hint {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.4;
 }
@@ -204,9 +314,9 @@
 }
 
 .symbol-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 6px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   padding: 8px 10px;
   border: 1px dashed var(--line);
   border-radius: 12px;
@@ -261,7 +371,7 @@ input[type="text"] {
   border-radius: 12px;
   border: 1px solid var(--line);
   background: #fff;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 input[type="range"] {
@@ -271,26 +381,40 @@ input[type="range"] {
 .ticks {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 14px;
   color: var(--muted);
 }
 
 .seg {
   display: inline-flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 12px;
   background: #fff;
-  border-radius: 999px;
+  border-radius: 50px;
   border: 1px solid var(--line);
-  padding: 4px;
+  padding: 5px 15px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .seg-btn {
   border: none;
   background: transparent;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: 16px;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+@media (min-width: 980px) {
+  .seg[data-seg="tone"] .seg-btn,
+  .seg[data-seg="style"] .seg-btn,
+  .seg[data-seg="flow"] .seg-btn,
+  .seg[data-seg="length"] .seg-btn {
+    padding: 8px 16px;
+    font-size: 15px;
+  }
 }
 
 .seg-btn.is-active {
@@ -317,8 +441,8 @@ input[type="range"] {
 .btn-ghost,
 .mini {
   border-radius: 999px;
-  padding: 11px 20px;
-  font-size: 13px;
+  padding: 9px 16px;
+  font-size: 14px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
@@ -344,7 +468,7 @@ input[type="range"] {
   padding: 18px;
   background: #fff;
   min-height: 88px;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.7;
 }
 
@@ -358,7 +482,7 @@ input[type="range"] {
 
 .history-fold summary {
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
@@ -387,7 +511,7 @@ input[type="range"] {
 }
 
 .summary-meta {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: var(--muted);
 }
@@ -417,6 +541,9 @@ input[type="range"] {
   padding: 0;
   display: grid;
   gap: 10px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .history-actions {
@@ -424,7 +551,7 @@ input[type="range"] {
 }
 
 .history-empty {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--muted);
   padding: 6px 4px 12px;
 }
@@ -444,12 +571,12 @@ input[type="range"] {
 }
 
 .history-text {
-  font-size: 15px;
+  font-size: 16px;
   grid-area: text;
 }
 
 .history-meta {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.4;
   grid-area: meta;
@@ -459,7 +586,7 @@ input[type="range"] {
   border: 1px solid var(--line);
   background: transparent;
   padding: 6px 10px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .history-actions-inline {
@@ -540,6 +667,23 @@ input[type="range"] {
 
 
 @media (max-width: 900px) {
+  .panel.output {
+    position: static;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .panel.controls-panel {
+    max-height: none;
+    overflow: visible;
+    padding-right: 20px;
+    border-right: none;
+  }
+
+  .history-list {
+    max-height: none;
+  }
+
   .output-actions {
     flex-wrap: wrap;
   }
